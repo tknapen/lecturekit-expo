@@ -1,0 +1,16 @@
+# built outputs and caches of each project
+*/_build/
+*/_build-*/
+*/_lecturekit/
+*/review/
+*/anim/media/
+*/slides.tex
+*/slides.log
+*/timing.txt
+_gallery/
+site/
+
+# python
+.venv/
+__pycache__/
+*.pyc

@@ -1,0 +1,32 @@
+% figure-preamble.tex
+% Standalone preamble for TikZ figures extracted from a deck for the browser output, and for `lk review figs`.
+% The fonts and the brand's colour tokens are written ahead of this file by the filter (lkbrand.lua), so a
+% figure matches the slide it sits on; the sizes match a 12pt Beamer frame whose body text is sans, so \small,
+% \footnotesize and the families render as on the page.
+\renewcommand{\familydefault}{\sfdefault}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc,fit,backgrounds,shapes.geometric,decorations.pathreplacing}
+% fall-backs for a deck without a brand file (the tokens above win when present)
+\providecolor{nmInk}{HTML}{202B33}
+\providecolor{nmMuted}{HTML}{566573}
+\providecolor{nmHairline}{HTML}{C8C3BA}
+\providecolor{nmPaper}{HTML}{F3F2EE}
+\providecolor{nmSlide}{HTML}{FFFFFF}
+\providecolor{nmInput}{HTML}{0072B2}
+\providecolor{nmState}{HTML}{007F73}
+\providecolor{nmUpdate}{HTML}{C45A00}
+\providecolor{nmContext}{HTML}{7A5195}
+\providecolor{nmConcept}{HTML}{175B8E}
+\providecolor{nmCaveat}{HTML}{A33A32}
+\providecolor{nmExample}{HTML}{956000}
+\providecolor{nmAnchor}{HTML}{006C65}
+\providecolor{nmQuestion}{HTML}{70508C}
+% The four pRF models of the workshop's advanced lecture (and the course's lectures 7 and 8); distinguishable under
+% deutan, protan and tritan vision against each other and against nmInk (CIELAB difference at least 19.6).
+\providecolor{nmGauss}{HTML}{175B8E}
+\providecolor{nmDoG}{HTML}{B87400}
+\providecolor{nmCSS}{HTML}{B63564}
+\providecolor{nmDN}{HTML}{009999}
+\providecolor{nmFuture}{HTML}{7A5195}
+% the named TikZ styles (nm/box, nm/arrow, nm/<role> ...) are inlined ahead of this file from tikz-styles.tex
+\color{nmInk}

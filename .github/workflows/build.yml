@@ -1,0 +1,80 @@
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Quarto
+        uses: quarto-dev/quarto-actions/setup@v2
+        with:
+          version: 1.11.9
+          tinytex: true
+
+      - name: TeX packages
+        run: |
+          tlmgr install beamer adjustbox collectbox etoolbox ragged2e pgf xcolor standalone fontspec unicode-math \
+            textcase lm lm-math varwidth caption booktabs || true
+          sudo apt-get update && sudo apt-get install -y --no-install-recommends lmodern fonts-lmodern
+          fc-cache -f
+
+      - uses: astral-sh/setup-uv@v5
+      - name: The engine (lecturekit) and the review tools
+        run: |
+          uv venv .venv
+          uv pip install -p .venv/bin/python -r requirements.txt
+          .venv/bin/playwright install --with-deps chromium
+
+      - name: Build every project
+        run: |
+          source .venv/bin/activate
+          for p in $(ls -d */ | sed 's#/##'); do
+            [ -f "$p/expo.yaml" ] && [ -f "$p/_quarto.yml" ] && [ "$p" != template ] || continue
+            echo "== $p"
+            lk build "$p"
+            lk review shoot "$p/_build/slides-live.html" --out "$p/review/shots" --sheet || true
+            lk review measure "$p/_build/slides-live.html" || true
+            lk review overflow "$p" || true
+          done
+
+      - name: Assemble the gallery
+        run: |
+          source .venv/bin/activate
+          python tools/gallery.py --out site
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gallery
+          path: site
+
+      - uses: actions/upload-pages-artifact@v3
+        if: github.ref == 'refs/heads/main'
+        with:
+          path: site
+
+  deploy:
+    if: github.ref == 'refs/heads/main'
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

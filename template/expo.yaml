@@ -1,0 +1,14 @@
+# what the gallery shows about this project (tools/gallery.py)
+title: A lecture (template)
+minutes: 45
+field: ''
+deck: lecture
+sources:
+- the documents the lecture is built from, or links and digitised values
+device: the teaching device this project demonstrates
+clips: []
+manim8_kinds: []
+presets:
+- paper
+author: ''
+licence: CC BY 4.0

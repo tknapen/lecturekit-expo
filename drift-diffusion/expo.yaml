@@ -1,0 +1,21 @@
+# what the gallery shows about this project (tools/gallery.py)
+title: 'Drift diffusion: evidence to a bound'
+minutes: 25
+field: decision making, cognitive neuroscience
+deck: lecture
+sources:
+- Ratcliff and McKoon 2008, Neural Computation 20, 873 to 922
+- Ratcliff, Smith, Brown and McKoon 2016, Trends in Cognitive Sciences 20, 260 to
+  281
+device: 'predict then reveal: the room predicts the response-time distribution before
+  the traces run'
+clips:
+- traces-to-bounds
+- bound-moves
+manim8_kinds:
+- plot
+- caption
+presets:
+- paper
+author: Tomas Knapen
+licence: CC BY 4.0

@@ -1,0 +1,22 @@
+# what the gallery shows about this project (tools/gallery.py)
+title: MRI from spins to k-space
+minutes: 30
+field: neuroimaging physics
+deck: lecture
+sources:
+- Hornak, The Basics of MRI (open, online)
+- 'Brown, Cheng, Haacke, Thompson and Venkatesan 2014, Magnetic Resonance Imaging:
+  Physical Principles and Sequence Design'
+device: 'predict then reveal: what the image looks like when half of k-space is filled'
+clips:
+- precession
+- kspace-fills
+- fourier-reconstruction
+manim8_kinds:
+- sphere
+- function_image
+- equation_block
+presets:
+- paper
+author: Tomas Knapen
+licence: CC BY 4.0

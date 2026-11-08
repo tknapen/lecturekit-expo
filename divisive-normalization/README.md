@@ -1,0 +1,20 @@
+# Divisive normalization
+
+A lecturekit project: one `slides.qmd`, a live deck and a study PDF.
+
+```bash
+lk build            # both outputs into _build/, timing plan on the terminal
+lk build --to live  # the live deck only
+lk build --profile dark
+lk review shoot _build/slides-live.html
+lk review measure _build/slides-live.html
+lk clips            # anim/clip_*.py on the Manim kit, into assets/clips
+```
+
+Method: `STORYBOARD.md` (intent) → `PLAN.md` (slides and minutes) →
+`sims/` (what the figures show) → `make_assets.py` (figures from numbers) →
+`slides.qmd` → review rounds → `FACTS.md` and `MANIFEST.md` → this file as the log.
+
+## Log
+
+- 2026-11-08: project created with `lk new` (lecturekit 0.2.0).

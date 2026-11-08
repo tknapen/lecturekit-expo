@@ -1,0 +1,21 @@
+# what the gallery shows about this project (tools/gallery.py)
+title: 'A talk from a paper: joint visual and somatotopic tuning'
+minutes: 25
+field: vision, body representation
+deck: talk
+sources:
+- Hedger, Naselaris, Kay and Knapen 2025, Nature 650, 173 to 181, doi 10.1038/s41586-025-09796-0
+- the supplementary information; the data and code where public
+device: a claim per slide, stated in the title, with the citation on the slide; figures
+  redrawn and recomputed, never reproduced
+clips:
+- the-model
+- body-maps-on-the-surface
+manim8_kinds:
+- schematic_population
+- surface_plot
+- plot
+presets:
+- paper
+author: Tomas Knapen
+licence: CC BY 4.0

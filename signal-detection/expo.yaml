@@ -1,0 +1,23 @@
+# what the gallery shows about this project (tools/gallery.py)
+title: Signal detection theory in twenty minutes
+minutes: 20
+field: perception, methods
+deck: lecture
+sources:
+- Green and Swets 1966, Signal Detection Theory and Psychophysics, chapter 1 (digitised
+  values; not redistributable)
+- 'Macmillan and Creelman 2005, Detection Theory: A User’s Guide, chapter 1'
+device: a quiz that carries its answer; a criterion that slides on a keypress; the
+  ROC drawn as it moves
+clips:
+- criterion-slides
+- roc-draws
+manim8_kinds:
+- plot
+- equation_block
+- caption
+presets:
+- paper
+- dark
+author: Tomas Knapen
+licence: CC BY 4.0

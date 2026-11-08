@@ -1,0 +1,21 @@
+# what the gallery shows about this project (tools/gallery.py)
+title: Divisive normalization across the hierarchy
+minutes: 25
+field: vision, systems neuroscience
+deck: lecture
+sources:
+- Carandini and Heeger 2012, Nature Reviews Neuroscience 13, 51 to 62
+- Aqil, Knapen and Dumoulin 2021, PNAS 118, e2108713118
+device: a dial on a parameter driving a response surface; the static figure as the
+  study equivalent
+clips:
+- dials-on-the-model
+- contrast-response
+manim8_kinds:
+- surface_plot
+- equation_block
+- plot
+presets:
+- paper
+author: Tomas Knapen
+licence: CC BY 4.0

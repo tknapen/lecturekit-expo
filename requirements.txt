@@ -1,0 +1,3 @@
+# the engine, pinned; move the pin to a release tag at lecturekit's first release
+lecturekit[review,figures] @ git+https://github.com/tknapen/lecturekit@claude/vigilant-dirac-gkw52u
+pyyaml>=6

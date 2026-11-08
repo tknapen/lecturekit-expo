@@ -1,0 +1,8 @@
+# Facts: A lecture
+
+Every number, date and claim on a slide, with its source and the date it was
+checked. A claim that is not here is not on a slide.
+
+| Claim | Slide | Source (page, table, figure) | Checked | Status |
+| --- | --- | --- | --- | --- |
+|  |  |  | 2026-11-08 | to confirm |
