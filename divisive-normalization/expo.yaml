@@ -9,12 +9,12 @@ sources:
 device: a dial on a parameter driving a response surface; the static figure as the
   study equivalent
 clips:
-- dials-on-the-model
-- contrast-response
+- dials_on_the_model
+- contrast_response
 manim8_kinds:
 - surface_plot
 - equation_block
-- plot
+- function_plot
 presets:
 - paper
 author: Tomas Knapen

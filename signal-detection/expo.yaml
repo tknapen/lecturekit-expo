@@ -10,12 +10,13 @@ sources:
 device: a quiz that carries its answer; a criterion that slides on a keypress; the
   ROC drawn as it moves
 clips:
-- criterion-slides
-- roc-draws
+- criterion_slides
+- roc_draws
 manim8_kinds:
-- plot
+- function_plot
+- scientific_plot
 - equation_block
-- caption
+- text_caption
 presets:
 - paper
 - dark

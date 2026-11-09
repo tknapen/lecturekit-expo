@@ -52,8 +52,8 @@ sources:
   - Green and Swets 1966, chapter 1 (digitised values; not redistributable)
   - Macmillan and Creelman 2005, chapter 1
 device: a quiz that carries its answer; a criterion that slides on a keypress
-clips: [criterion-slides, roc-draws]
-manim8_kinds: [plot, equation_block, caption]
+clips: [criterion_slides, roc_draws]   # slugs: the deck's clip= names and the manim8 project ids
+manim8_kinds: [function_plot, scientific_plot, equation_block, text_caption]   # registry ids
 presets: [paper, dark]
 author: Tomas Knapen
 licence: CC BY 4.0
@@ -100,31 +100,31 @@ network graphs, spheres) with at most one custom builder; twenty to thirty minut
 
 | Project | What moves, and why it must | Sources | Kinds | Device | Min |
 | --- | --- | --- | --- | --- | --- |
-| Signal detection theory | two distributions, a criterion sliding, the ROC drawn as it moves; d' and bias separate before your eyes | Green and Swets 1966; Macmillan and Creelman 2005 | plot, equation block | quiz with its answer | 20 |
-| Drift diffusion | evidence traces reaching bounds, RT distributions piling up, the speed-accuracy trade-off as the bound moves | Ratcliff and McKoon 2008; Ratcliff et al. 2016 | plot, caption | predict then reveal | 25 |
-| Divisive normalization | dials on the parameters driving response surfaces; contrast response; attention as gain | Carandini and Heeger 2012; Aqil et al. 2021 (own) | surface plot, equation block | a dial on a parameter | 25 |
-| Tuning curves and population codes | Gaussian tuning, the population vector, noise and Fisher information | Pouget et al. 2000; Dayan and Abbott ch. 3 | schematic population, plot | one simulation for all | 20 |
-| Population receptive fields | the kickoff and the workshop lectures, as they are | the Popylar proposal; Dumoulin and Wandell 2008 | RF glyph, plot, surface | the whole method | 15 to 90 |
-| Predictive coding | a two-layer network with error units settling; the prediction and the residual over time | Rao and Ballard 1999 | network graph, plot | staged figure | 25 |
-| Grid and place cells | 2-D firing fields emerging from a trajectory; path integration | Moser, Kropff and Moser 2008 | function image, plot | live clip, study still | 20 |
-| Bayesian cue combination | prior and likelihood multiplied; the posterior narrows; the weights shift with reliability | Ernst and Banks 2002; Knill and Pouget 2004 | plot, equation block | worked example | 15 |
-| Spiking neurons | integrate-and-fire to Hodgkin and Huxley: membrane potential, gating variables, the threshold | Hodgkin and Huxley 1952; Gerstner et al., Neuronal Dynamics (open) | plot, equation block | a dial on the input current | 30 |
-| Receptive fields and Gabor filters | an image convolved with a Gabor; simple and complex cells; orientation energy | Hubel and Wiesel 1962; Jones and Palmer 1987 | function image | staged figure | 20 |
-| MRI from spins to k-space | precession, the RF pulse, gradients, k-space filling, the Fourier reconstruction | Hornak, The Basics of MRI (open online); Brown et al. 2014 | sphere, function image, equation block | predict then reveal | 30 |
-| The BOLD response and the GLM | the HRF, convolution, the design matrix, the fit; the bar-and-BOLD clip generalised | Boynton et al. 1996; Poldrack, Mumford and Nichols 2011 | plot, equation block | one simulation for all | 25 |
-| Diffusion MRI | tensors as ellipsoids, crossing fibres, where tractography fails | Basser et al. 1994; Jones 2010 | surface plot, sphere | caveat slides | 20 |
-| EEG and MEG forward model | a dipole in a sphere, the field map, why inverse problems are ill-posed | Hämäläinen et al. 1993 | sphere, function image | worked example | 20 |
-| Fourier series and transform | a sum of rotating terms drawing a square wave; the frequency domain of an image | any analysis text; Bracewell | plot, function image, equation block | reveal by term | 20 |
-| Linear maps as geometry | a grid deformed by a matrix; eigenvectors standing still; the SVD as rotate-scale-rotate | Strang; 3Blue1Brown as storyboard only (licence note) | custom grid builder, equation block | predict then reveal | 25 |
-| Gradient descent on a landscape | a ball on a loss surface; learning rate, momentum, saddles | Goodfellow, Bengio and Courville (open) | surface plot, plot | a dial on the learning rate | 20 |
-| Dynamical systems and phase portraits | nullclines, fixed points, a limit cycle; Wilson and Cowan as the neural case | Strogatz; Wilson and Cowan 1972 | custom field builder (nmfield exists), plot | staged figure | 25 |
-| Backpropagation on a tiny network | activations forward, errors backward, weights changing; the loss falling | Rumelhart, Hinton and Williams 1986; Nielsen (open) | network graph, plot | worked example | 25 |
-| Temporal-difference learning and dopamine | value updates, prediction errors moving back to the cue; the bandit in the room | Schultz, Dayan and Montague 1997; Sutton and Barto (open) | plot, schematic population | the room produces data | 25 |
-| Entropy and mutual information | areas that split and overlap; the channel; why bits are the unit | Shannon 1948; MacKay (open) | plot, equation block | quiz with its answer | 20 |
-| Sampling, resampling and multiple comparisons | sampling distributions forming; a permutation test; the false-positive rate climbing with tests | any open statistics text | plot | predict then reveal | 20 |
-| An epidemic | S, I and R curves as the reproduction number turns; the herd-immunity threshold | Kermack and McKendrick 1927; any open text | plot | a dial on a parameter | 15 |
-| Drift and selection | allele frequencies as random walks; fixation; selection bending the walk | any open population-genetics text | plot | one simulation for all | 15 |
-| Waves and interference | two sources, the pattern on a screen; the double slit | any open physics text | function image | staged figure | 15 |
+| Signal detection theory | two distributions, a criterion sliding, the ROC drawn as it moves; d' and bias separate before your eyes | Green and Swets 1966; Macmillan and Creelman 2005 | function_plot, scientific_plot, equation_block, text_caption | quiz with its answer | 20 |
+| Drift diffusion | evidence traces reaching bounds, RT distributions piling up, the speed-accuracy trade-off as the bound moves | Ratcliff and McKoon 2008; Ratcliff et al. 2016 | scientific_plot, text_caption | predict then reveal | 25 |
+| Divisive normalization | dials on the parameters driving response surfaces; contrast response; attention as gain | Carandini and Heeger 2012; Aqil et al. 2021 (own) | surface_plot, equation_block, function_plot | a dial on a parameter | 25 |
+| Tuning curves and population codes | Gaussian tuning, the population vector, noise and Fisher information | Pouget et al. 2000; Dayan and Abbott ch. 3 | schematic_population, function_plot | one simulation for all | 20 |
+| Population receptive fields | the kickoff and the workshop lectures, as they are | the Popylar proposal; Dumoulin and Wandell 2008 | receptive_field_glyph, function_plot, surface_plot | the whole method | 15 to 90 |
+| Predictive coding | a two-layer network with error units settling; the prediction and the residual over time | Rao and Ballard 1999 | network_graph, scientific_plot | staged figure | 25 |
+| Grid and place cells | 2-D firing fields emerging from a trajectory; path integration | Moser, Kropff and Moser 2008 | function_image, scientific_plot | live clip, study still | 20 |
+| Bayesian cue combination | prior and likelihood multiplied; the posterior narrows; the weights shift with reliability | Ernst and Banks 2002; Knill and Pouget 2004 | function_plot, equation_block | worked example | 15 |
+| Spiking neurons | integrate-and-fire to Hodgkin and Huxley: membrane potential, gating variables, the threshold | Hodgkin and Huxley 1952; Gerstner et al., Neuronal Dynamics (open) | scientific_plot, equation_block | a dial on the input current | 30 |
+| Receptive fields and Gabor filters | an image convolved with a Gabor; simple and complex cells; orientation energy | Hubel and Wiesel 1962; Jones and Palmer 1987 | function_image | staged figure | 20 |
+| MRI from spins to k-space | precession, the RF pulse, gradients, k-space filling, the Fourier reconstruction | Hornak, The Basics of MRI (open online); Brown et al. 2014 | sphere, function_image, equation_block | predict then reveal | 30 |
+| The BOLD response and the GLM | the HRF, convolution, the design matrix, the fit; the bar-and-BOLD clip generalised | Boynton et al. 1996; Poldrack, Mumford and Nichols 2011 | scientific_plot, equation_block | one simulation for all | 25 |
+| Diffusion MRI | tensors as ellipsoids, crossing fibres, where tractography fails | Basser et al. 1994; Jones 2010 | surface_plot, sphere | caveat slides | 20 |
+| EEG and MEG forward model | a dipole in a sphere, the field map, why inverse problems are ill-posed | Hämäläinen et al. 1993 | sphere, function_image | worked example | 20 |
+| Fourier series and transform | a sum of rotating terms drawing a square wave; the frequency domain of an image | any analysis text; Bracewell | function_plot, function_image, equation_block | reveal by term | 20 |
+| Linear maps as geometry | a grid deformed by a matrix; eigenvectors standing still; the SVD as rotate-scale-rotate | Strang; 3Blue1Brown as storyboard only (licence note) | custom (a grid builder), equation_block | predict then reveal | 25 |
+| Gradient descent on a landscape | a ball on a loss surface; learning rate, momentum, saddles | Goodfellow, Bengio and Courville (open) | surface_plot, function_plot | a dial on the learning rate | 20 |
+| Dynamical systems and phase portraits | nullclines, fixed points, a limit cycle; Wilson and Cowan as the neural case | Strogatz; Wilson and Cowan 1972 | custom (a field builder; the kit's nmfield exists), scientific_plot | staged figure | 25 |
+| Backpropagation on a tiny network | activations forward, errors backward, weights changing; the loss falling | Rumelhart, Hinton and Williams 1986; Nielsen (open) | network_graph, scientific_plot | worked example | 25 |
+| Temporal-difference learning and dopamine | value updates, prediction errors moving back to the cue; the bandit in the room | Schultz, Dayan and Montague 1997; Sutton and Barto (open) | scientific_plot, schematic_population | the room produces data | 25 |
+| Entropy and mutual information | areas that split and overlap; the channel; why bits are the unit | Shannon 1948; MacKay (open) | function_plot, equation_block | quiz with its answer | 20 |
+| Sampling, resampling and multiple comparisons | sampling distributions forming; a permutation test; the false-positive rate climbing with tests | any open statistics text | scientific_plot | predict then reveal | 20 |
+| An epidemic | S, I and R curves as the reproduction number turns; the herd-immunity threshold | Kermack and McKendrick 1927; any open text | scientific_plot | a dial on a parameter | 15 |
+| Drift and selection | allele frequencies as random walks; fixation; selection bending the walk | any open population-genetics text | scientific_plot | one simulation for all | 15 |
+| Waves and interference | two sources, the pattern on a screen; the double slit | any open physics text | function_image | staged figure | 15 |
 
 The first five, as a set: signal detection (methods, open, plots only), drift diffusion (the pilot exists), divisive
 normalization (own work, surfaces and dials), MRI from spins to k-space (the largest effect per minute, spheres and

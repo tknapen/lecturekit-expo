@@ -10,8 +10,8 @@ sources:
 device: 'predict then reveal: what the image looks like when half of k-space is filled'
 clips:
 - precession
-- kspace-fills
-- fourier-reconstruction
+- kspace_fills
+- fourier_reconstruction
 manim8_kinds:
 - sphere
 - function_image

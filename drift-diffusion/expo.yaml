@@ -10,11 +10,11 @@ sources:
 device: 'predict then reveal: the room predicts the response-time distribution before
   the traces run'
 clips:
-- traces-to-bounds
-- bound-moves
+- traces_to_bounds
+- bound_moves
 manim8_kinds:
-- plot
-- caption
+- scientific_plot
+- text_caption
 presets:
 - paper
 author: Tomas Knapen

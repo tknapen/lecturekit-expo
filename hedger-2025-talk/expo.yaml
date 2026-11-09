@@ -9,12 +9,12 @@ sources:
 device: a claim per slide, stated in the title, with the citation on the slide; figures
   redrawn and recomputed, never reproduced
 clips:
-- the-model
-- body-maps-on-the-surface
+- the_model
+- body_maps_on_the_surface
 manim8_kinds:
 - schematic_population
 - surface_plot
-- plot
+- scientific_plot
 presets:
 - paper
 author: Tomas Knapen
