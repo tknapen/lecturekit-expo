@@ -102,6 +102,10 @@ jobs:
         run: |
           # tlmgr's exit status is informational: it also fails on a repository hiccup or a package it already has.
           # The kpsewhich line below is the gate: it fails when a file the two formats need is missing.
+          # Quarto's TinyTeX is not on PATH by itself: put its bin directory there, for this step and the next.
+          TT="$(dirname "$(find "$HOME/.TinyTeX" "$HOME/bin" -name tlmgr 2>/dev/null | head -1)" 2>/dev/null)"
+          [ -n "$TT" ] && [ "$TT" != . ] && { export PATH="$TT:$PATH"; echo "$TT" >> "$GITHUB_PATH"; }
+          command -v tlmgr > /dev/null || { echo "tlmgr not found: TinyTeX is not installed where Quarto puts it"; exit 1; }
           tlmgr install beamer adjustbox collectbox etoolbox ragged2e pgf xcolor standalone fontspec unicode-math \
             textcase lm lm-math varwidth caption booktabs || true
           for f in beamer.cls adjustbox.sty collectbox.sty etoolbox.sty ragged2e.sty tikz.sty xcolor.sty \
@@ -170,6 +174,7 @@ jobs:
       - name: Assemble the gallery
         if: always()
         run: |
+          [ -f .venv/bin/activate ] || { echo "no engine installed: an earlier step failed, so there is no gallery"; exit 1; }
           source .venv/bin/activate
           python tools/gallery.py --out site
 
