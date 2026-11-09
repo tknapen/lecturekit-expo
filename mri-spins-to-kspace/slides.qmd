@@ -5,7 +5,7 @@ shorttitle: "mri from spins"
 eyebrow: ""
 author: ""
 date: ""
-budget: 45
+budget: 30
 bibliography: references.bib
 ---
 

@@ -8,7 +8,8 @@ project:
   resources:
     - /assets/**              # the clips and data, referenced from raw HTML (anchored: not _build/assets)
 
-# the lecturekit formats come from the expo’s shared extension (_extensions -> ../_extensions, lecturekit 0.2)
+# the lecturekit formats come from the expo's shared extension (_extensions links to ../_extensions);
+# a project taken out of the expo gets its own copy with lk new --vendor-only <dir>
 format:
   lecturekit-revealjs:
     output-file: slides-live.html

@@ -5,7 +5,7 @@ shorttitle: "drift diffusion"
 eyebrow: ""
 author: ""
 date: ""
-budget: 45
+budget: 25
 bibliography: references.bib
 ---
 

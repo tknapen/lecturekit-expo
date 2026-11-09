@@ -5,7 +5,7 @@ shorttitle: "signal detection theory"
 eyebrow: ""
 author: ""
 date: ""
-budget: 45
+budget: 20
 bibliography: references.bib
 ---
 

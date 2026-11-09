@@ -5,7 +5,7 @@ shorttitle: "joint visual and"
 eyebrow: ""
 author: ""
 date: ""
-budget: 45
+budget: 25
 bibliography: references.bib
 ---
 
