@@ -1,22 +1,87 @@
 name: build
 
+# Every project against the engine pinned in requirements.txt (pushes and pull requests), and every week against
+# lecturekit's main branch (the schedule, or a manual run), so that an engine change that breaks a deck is seen
+# here before it is released. Two jobs: clips renders each project's clips with Manim and manim8 and checks the
+# index against the manifests; build builds every deck (both presets where expo.yaml declares dark) with those
+# clips, runs the review checks and assembles the gallery. Pages is published from pushes to main only.
+
 on:
   push:
-    branches: [main]
+    branches: [main, "claude/**"]
   pull_request:
+  schedule:
+    - cron: "17 5 * * 1"            # Mondays, 05:17 UTC: the projects against lecturekit's main
   workflow_dispatch:
+    inputs:
+      engine:
+        description: "lecturekit to build with: main (its main branch) or pinned (the tag in requirements.txt)"
+        type: choice
+        options: [main, pinned]
+        default: main
 
 permissions:
   contents: read
   pages: write
   id-token: write
 
+env:
+  ENGINE: ${{ github.event_name == 'schedule' && 'main' || inputs.engine || 'pinned' }}
+
+# one run per branch and engine at a time; a newer push to a work branch replaces its running build
 concurrency:
-  group: pages
-  cancel-in-progress: false
+  group: build-${{ github.ref }}-${{ github.event_name == 'schedule' && 'main' || inputs.engine || 'pinned' }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
 
 jobs:
+  clips:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: The libraries Manim builds against, and ffmpeg
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libcairo2-dev libpango1.0-dev pkg-config ffmpeg
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: The engine (lecturekit with Manim and manim8)
+        run: .github/scripts/install-engine.sh
+
+      - name: Render the clips of every project that has them
+        run: |
+          source .venv/bin/activate
+          for p in $(python tools/projects.py --clips); do
+            echo "== $p"
+            lk clips "$p"
+            if python tools/projects.py --clips --preset dark | grep -qx "$p"; then lk clips "$p" --mode dark; fi
+          done
+
+      - name: Each manim8 clip in the index is its job's full movie, with its checkpoints
+        run: |
+          source .venv/bin/activate
+          python tools/check_clips.py
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: clips-${{ env.ENGINE }}
+          path: "*/assets/clips/"
+          if-no-files-found: ignore
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: clip-manifests-${{ env.ENGINE }}
+          path: "*/clips/families/*/*/renders/*/*/manifest.json"
+          if-no-files-found: ignore
+
   build:
+    needs: clips
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -27,51 +92,95 @@ jobs:
           version: 1.11.9
           tinytex: true
 
-      - name: TeX packages
+      - name: TeX packages, fonts and the libraries Manim builds against
         run: |
+          # tlmgr's exit status is informational: it also fails on a repository hiccup or a package it already has.
+          # The kpsewhich line below is the gate: it fails when a file the two formats need is missing.
           tlmgr install beamer adjustbox collectbox etoolbox ragged2e pgf xcolor standalone fontspec unicode-math \
             textcase lm lm-math varwidth caption booktabs || true
-          sudo apt-get update && sudo apt-get install -y --no-install-recommends lmodern fonts-lmodern
+          for f in beamer.cls adjustbox.sty collectbox.sty etoolbox.sty ragged2e.sty tikz.sty xcolor.sty \
+            standalone.cls fontspec.sty unicode-math.sty textcase.sty lmodern.sty latinmodern-math.otf \
+            varwidth.sty caption.sty booktabs.sty; do
+            kpsewhich "$f" > /dev/null || { echo "TeX is missing $f"; exit 1; }
+          done
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends lmodern fonts-lmodern libcairo2-dev libpango1.0-dev \
+            pkg-config ffmpeg
           fc-cache -f
 
-      - uses: astral-sh/setup-uv@v5
-      - name: The engine (lecturekit) and the review tools
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements.txt
+
+      - name: The engine (lecturekit and the review tools)
         run: |
-          uv venv .venv
-          uv pip install -p .venv/bin/python -r requirements.txt
+          .github/scripts/install-engine.sh
           .venv/bin/playwright install --with-deps chromium
 
-      - name: Build every project
+      - name: Metadata, and the vendored extension against the installed engine
         run: |
           source .venv/bin/activate
-          for p in $(ls -d */ | sed 's#/##'); do
-            [ -f "$p/expo.yaml" ] && [ -f "$p/_quarto.yml" ] && [ "$p" != template ] || continue
-            echo "== $p"
-            lk build "$p"
-            lk review shoot "$p/_build/slides-live.html" --out "$p/review/shots" --sheet || true
-            lk review measure "$p/_build/slides-live.html" || true
-            lk review overflow "$p" || true
+          if [ "$ENGINE" = main ]; then
+            # against main the vendored copy is expected to lag: report the drift, then build with main's own copy
+            python tools/check_meta.py --allow-extension-drift
+            python tools/vendor_extension.py
+          else
+            python tools/check_meta.py
+          fi
+
+      - name: The clips rendered in the clips job
+        uses: actions/download-artifact@v4
+        with:
+          name: clips-${{ env.ENGINE }}
+          path: .
+
+      - name: Build and review every project, both presets where declared
+        run: |
+          source .venv/bin/activate
+          status=0
+          mapfile -t rows < <(python tools/projects.py --presets)   # a list, so no tool can read the loop's stdin
+          for row in "${rows[@]}"; do
+            read -r p preset <<< "$row"
+            echo "::group::$p ($preset)"
+            out="_build"; brand="_brand.yml"; mode="light"; shots="shots"
+            if [ "$preset" = dark ]; then out="_build-dark"; brand="_brand-dark.yml"; mode="dark"; shots="shots-dark"; fi
+            if [ "$preset" = dark ]; then lk build "$p" --profile dark; else lk build "$p"; fi || { status=1; echo "::endgroup::"; continue; }
+            # every check gates; overflow reads the log this build left beside the source, so it runs right after
+            lk review overflow "$p" || status=1
+            lk review contrast "$p/$brand" --mode $mode || status=1
+            lk review shoot "$p/$out/slides-live.html" --out "$p/review/$shots" --sheet || status=1
+            lk review measure "$p/$out/slides-live.html" || status=1
+            lk review frags "$p/$out/slides-live.html" --out "$p/review/frags-$preset" || status=1
+            echo "::endgroup::"
           done
+          exit $status
 
       - name: Assemble the gallery
+        if: always()
         run: |
           source .venv/bin/activate
           python tools/gallery.py --out site
 
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: gallery
+          name: gallery-${{ env.ENGINE }}
           path: site
 
       - uses: actions/upload-pages-artifact@v3
-        if: github.ref == 'refs/heads/main'
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main' && env.ENGINE == 'pinned'
         with:
           path: site
 
   deploy:
-    if: github.ref == 'refs/heads/main'
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     needs: build
     runs-on: ubuntu-latest
+    concurrency:
+      group: pages
+      cancel-in-progress: false
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
