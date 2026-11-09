@@ -56,10 +56,16 @@ jobs:
       - name: Render the clips of every project that has them
         run: |
           source .venv/bin/activate
-          for p in $(python tools/projects.py --clips); do
+          # the lists go to files first: a command substitution in a for list, or a process substitution, would
+          # hide the helper's exit status from bash -e, and a crashed helper would make this step a silent no-op
+          python tools/projects.py --clips > "$RUNNER_TEMP/clips.txt"
+          python tools/projects.py --clips --preset dark > "$RUNNER_TEMP/clips-dark.txt"
+          mapfile -t projects < "$RUNNER_TEMP/clips.txt"
+          [ "${#projects[@]}" -gt 0 ] || { echo "tools/projects.py lists no project with clips"; exit 1; }
+          for p in "${projects[@]}"; do
             echo "== $p"
             lk clips "$p"
-            if python tools/projects.py --clips --preset dark | grep -qx "$p"; then lk clips "$p" --mode dark; fi
+            if grep -qx "$p" "$RUNNER_TEMP/clips-dark.txt"; then lk clips "$p" --mode dark; fi
           done
 
       - name: Each manim8 clip in the index is its job's full movie, with its checkpoints
@@ -140,7 +146,11 @@ jobs:
         run: |
           source .venv/bin/activate
           status=0
-          mapfile -t rows < <(python tools/projects.py --presets)   # a list, so no tool can read the loop's stdin
+          # to a file first, so that a failing helper fails the step (a process substitution would hide its exit
+          # status), then a list, so that no tool can read the loop's stdin
+          python tools/projects.py --presets > "$RUNNER_TEMP/presets.txt"
+          mapfile -t rows < "$RUNNER_TEMP/presets.txt"
+          [ "${#rows[@]}" -gt 0 ] || { echo "tools/projects.py lists no project"; exit 1; }
           for row in "${rows[@]}"; do
             read -r p preset <<< "$row"
             echo "::group::$p ($preset)"
