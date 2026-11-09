@@ -1,3 +1,6 @@
-# the engine, pinned; move the pin to a release tag at lecturekit's first release
-lecturekit[review,figures] @ git+https://github.com/tknapen/lecturekit@claude/vigilant-dirac-gkw52u
+# The engine, pinned by tag. Its manim8 extra pins manim8 by tag too (v0.1.0a0, Python 3.12 or later), and clips
+# brings Manim for kit scenes; Manim needs Cairo and Pango (libcairo2-dev libpango1.0-dev pkg-config on Debian).
+# Moving the pin: change the tag here, install, run `python tools/vendor_extension.py`, then `tools/check_meta.py`.
+# The weekly build (.github/workflows/build.yml) installs lecturekit's main branch in place of this tag.
+lecturekit[review,figures,clips,manim8] @ git+https://github.com/tknapen/lecturekit@v0.3.0
 pyyaml>=6
