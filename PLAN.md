@@ -8,26 +8,34 @@ and two example decks; the expo is where the method is seen at work, many times 
 
 Four things the engine repository cannot do.
 
-1. It proves the separation. Every project vendors the extension and pins the package (`lecturekit>=0.2,<0.3`) and
-   carries no engine code. If a project needs a helper that is not in the engine, it lives in the project's `lib/`
-   until a second project wants it; then it moves into the engine with a release. The expo is where that rule is
-   exercised.
-2. It is the engine's integration test. A change to the filter, the theme or the kit rebuilds a dozen decks in the
-   continuous build; a regression that the two example decks do not catch shows up here, with a contact sheet.
+1. It proves the separation. No project carries engine code. The expo pins the package once, by tag
+   (`requirements.txt`: lecturekit 0.3.0), and vendors its extension once (`_extensions/lecturekit` at the root,
+   which every project's `_extensions` links to); the continuous build fails when that copy differs by a byte from
+   the installed package's. A project taken out of the expo gets its own copy (`lk new --vendor-only`). If a project
+   needs a helper that is not in the engine, it lives in the project's `lib/` until a second project wants it; then
+   it moves into the engine with a release. The expo is where that rule is exercised.
+2. It is the engine's integration test. A change to the filter, the theme or the kit rebuilds every deck (five
+   today) in the continuous build; every Monday the decks are built against lecturekit's `main`, so a regression
+   that the two example decks do not catch shows up here, with a contact sheet, before a release.
 3. It tells the story the method claims: from a few source documents (a paper, a chapter, a dataset, a proposal) to
    a lecture with a storyboard, a plan, verified facts, figures from numbers and clips, in a session whose prompts
    are kept. The inputs sit beside the outputs, so a reader can judge the distance travelled.
-4. It is the proving ground for manim8. Each project holds its manim8 workspace; each clip that needs a custom
-   builder is a candidate for a registered kind; a builder that two projects need is promoted. The expo grows the
-   registry and the pattern library from real lectures rather than from demos.
+4. It is the proving ground for manim8. A project with manim8 clips holds its manim8 workspace in `clips/`
+   (divisive normalization has the first, with manim8's own example as the seam's test); each clip that needs a
+   custom builder is a candidate for a registered kind; a builder that two projects need is promoted. The expo grows
+   the registry and the pattern library from real lectures rather than from demos.
 
 ## Shape
 
 ```text
 lecturekit-expo/
 ├── README.md                     the gallery's front page is generated; this says what the expo is
+├── requirements.txt              the engine, pinned by tag, with its clips and manim8 extras
+├── _extensions/lecturekit/       the engine's extension, vendored once; every project's _extensions links here
 ├── _gallery/                     tools/gallery.py reads every project's expo.yaml and review sheet into index.html
-├── .github/workflows/build.yml   matrix over projects: lk build (both presets where declared), lk review, Pages
+├── tools/                        check_meta.py, check_clips.py, vendor_extension.py, gallery.py, projects.py
+├── .github/workflows/build.yml   clips (lk clips, the index against the manifests), then build: lk build in each
+│                                 declared preset, the review checks, the gallery, Pages; weekly against lecturekit main
 ├── template/                     the project convention: what lk new writes, plus sources/, SESSION.md, expo.yaml
 ├── signal-detection/             one folder per project
 │   ├── expo.yaml                 title, minutes, field, source documents, teaching device, manim8 kinds used, presets
@@ -36,7 +44,8 @@ lecturekit-expo/
 │   ├── SESSION.md                the prompts of the session that built it, in order, with what the lecturer changed
 │   ├── sims/                     the simulations; summaries land in assets/data
 │   ├── make_assets.py anim/ assets/ slides.qmd _quarto.yml _brand.yml references.bib
-│   └── clips/                    the manim8 workspace (second release): families/<project>/<clip>/
+│   └── clips/                    the manim8 workspace (lk new --manim8): styles/, families/<family>/<clip>/,
+│                                 a uv.lock per family; the rendered clips land in assets/clips with clips.json
 ├── drift-diffusion/
 └── ...
 ```
@@ -59,10 +68,12 @@ author: Tomas Knapen
 licence: CC BY 4.0
 ```
 
-The gallery is one page of cards: title and minutes, the field, the teaching device, a five-second preview of the
-best clip (a small WebM cut by `lk clips --preview`, to be added), links to the live deck, the study PDF, the contact
-sheet and `SESSION.md`, and the sources. Filters by device, field and manim8 kind. A second page, the clip reel, shows
-every clip of every project in one grid: that page is the manim8 showcase. A third, the reader, collects the study
+The gallery is one page of cards: title and minutes, the field, the teaching device, the manim8 kinds, the clips
+rendered, links to the live deck and the study PDF of each preset built, the contact sheets and `SESSION.md`, and
+the sources. That much exists (`tools/gallery.py`). Planned, not built: a five-second preview of the best clip, a
+small WebM that `lk clips --preview` would cut (lecturekit does not have it; it is a request to the engine, and
+until it exists the card shows no preview); filters by device, field and manim8 kind; a second page, the clip reel,
+showing every clip of every project in one grid, the manim8 showcase; and a third, the reader, collecting the study
 PDFs: the student's view of the whole expo.
 
 ## Organise by teaching device, not by topic
@@ -94,9 +105,14 @@ Each project names one primary device in `expo.yaml` and demonstrates it without
 ## Topics
 
 The criteria: one simulation can produce the figure, the clip and the numbers; the dynamic is only clear in motion;
-the sources are open or reducible to digitised values; the clips fit manim8's registered kinds (plots, function and
-surface plots, function images, equation blocks and labels, captions, schematic populations, receptive-field glyphs,
-network graphs, spheres) with at most one custom builder; twenty to thirty minutes for a first entry.
+the sources are open or reducible to digitised values; the clips fit manim8's registered kinds (`scientific_plot`,
+`function_plot`, `comparison_plot`, `surface_plot`, `function_image`, `equation_block`, `equation_label`,
+`text_caption`, `caption_with_citation`, `schematic_population`, `receptive_field_glyph`, `network_graph`, `sphere`)
+with at most one `custom` builder; twenty to thirty minutes for a first entry. The kinds column names registry ids,
+as `expo.yaml` does, and `tools/check_meta.py` checks both against manim8's registry: an analytic curve is a
+`function_plot`, a curve from a simulation or a dataset a `scientific_plot` (the ROC among them, since the expression
+whitelist has no erf). Two fits are doubtful and may need `custom`: k-space and its Fourier reconstruction (no FFT
+or data image in the registry) and body maps on a cortical mesh (`surface_plot` is z = f(x, y)).
 
 | Project | What moves, and why it must | Sources | Kinds | Device | Min |
 | --- | --- | --- | --- | --- | --- |
@@ -138,7 +154,9 @@ to add when manim8 needs a showcase outside neuroscience.
 2. The assistant proposes `PLAN.md` (claims, roles, minutes, the figure or clip of each slide, the numbers each needs)
    and the simulations in `sims/`; the lecturer edits the plan.
 3. Simulations run; summaries land in `assets/data`; `make_assets.py` draws the figures; the clips are briefs to
-   manim8 (second release) or scenes on the kit, rendered by `lk clips` into `assets/clips` and `clips.json`.
+   manim8 (a project in `clips/`, made with `lk new --manim8`) or scenes on the kit (`anim/clip_*.py`), rendered by
+   `lk clips` into `assets/clips` and `clips.json`. A clip's name is a slug, the same in `expo.yaml`, in the deck's
+   `clip=` and as the manim8 project's directory.
 4. `slides.qmd`, review rounds on the contact sheet and the PDF, `FACTS.md` and `MANIFEST.md`, the README log.
 5. `SESSION.md`: the prompts in order and what the lecturer changed by hand. Without it the project is a deck;
    with it, it is a reproducible example of the method.
@@ -147,11 +165,18 @@ to add when manim8 needs a showcase outside neuroscience.
 
 - Content under CC BY 4.0, each project with its author. Sources go in only when redistributable; otherwise a link
   and the digitised values, with the method of digitising in `MANIFEST.md`.
-- Each project pins its engine range and vendors the extension; the continuous build runs the newest engine against
-  every project and the pinned one against each, so a breaking change is seen before a release.
-- Each project has its own `_brand.yml`; at least one carries the dark preset too.
-- The manim8 workspace per project under `clips/`, styles bridged from `_brand.yml` as versions
-  (`styles/<brand>/<version>/style.yaml`), stills from named checkpoints for the study PDF. A custom builder that
-  recurs in two projects is proposed to manim8's registry.
-- A project's figures and clips are rendered in the continuous build; the committed MP4s are the fallback for the
-  Pages site, as in the engine repository.
+- One engine for all projects: `requirements.txt` pins lecturekit by tag (its manim8 extra pins manim8 by tag too),
+  and the extension is vendored once at the root. The continuous build installs the pin on every push and pull
+  request and fails when the vendored extension differs from the installed one; every Monday it installs
+  lecturekit's `main` instead, so a breaking change is seen before a release. Moving the pin is one commit: the tag,
+  `python tools/vendor_extension.py`, and the decks rebuilt.
+- Each project has its own `_brand.yml` and `_brand-dark.yml`; a project builds in the dark preset where its
+  `expo.yaml` declares `dark` (signal detection today), and the continuous build then builds and checks both.
+- A project's manim8 workspace is `clips/`, with the styles bridged from its brands as versions
+  (`clips/styles/lecturekit_paper/0.1.0/style.yaml` and `lecturekit_dark`, written by `lk theme --manim8` and
+  selected in each `animation.yaml` through a manim8 proposal), and a family whose render environment takes manim8
+  from GitHub at a fixed commit, pinned by its `uv.lock`. The still in the study PDF is a named checkpoint: the
+  latest by default, another with `lk clips --still` or the movie's `still=`. A custom builder that recurs in two
+  projects is proposed to manim8's registry.
+- A project's figures and clips are rendered in the continuous build, and the decks are built with those clips; the
+  committed MP4s, stills and `clips.json` are the fallback for a build without Manim, as in the engine repository.
