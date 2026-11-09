@@ -1,0 +1,62 @@
+schema_version: '1.0'
+proposal:
+  schema_version: '1.0'
+  id: prop_expo_output_1280x720
+  kind: revise_spec
+  created_at: '2026-11-09T10:30:00+00:00'
+  author: lecturekit-expo (the divisive-normalization workspace)
+  summary: Render at 1280 by 720, the size lk new --manim8 gives a deck's clips
+  rationale: The deck shows the clip at 1280 by 720 at most; 1920 by 1080 only makes the committed fallback 
+    larger. The frame rate stays 30 fps and the aspect ratio 16:9.
+  in_response_to: []
+  uncertainties: []
+  claims: []
+  targets:
+    - file: animation.yaml
+      patch:
+        - op: replace
+          path: /output/width_px
+          value: 1280
+        - op: replace
+          path: /output/height_px
+          value: 720
+  touches_science: false
+applied_at: '2026-11-09T10:10:43+00:00'
+applied_to_revision: working
+diffs:
+  animation.yaml: "--- a/animation.yaml\n+++ b/animation.yaml\n@@ -1,73 +1,71 @@\n-schema_version: \"1.0\"\n+schema_version:
+    '1.0'\n id: divisive_normalization_intro\n-title: \"Divisive normalization: excitation and pool\"\n+title: 'Divisive
+    normalization: excitation and pool'\n sources:\n   - id: responses\n     type: csv\n     path: data/synthetic_responses.csv\n\
+    \     role: illustrative_data\n-    citation: \"Synthetic illustrative data generated for this example\"\n-\
+    \  # A user-supplied PDF could be added here, for example:\n-  # - id: actual_paper\n-  #   type: pdf\n-  #\
+    \   path: references/source_paper.pdf\n-  #   locators: [\"p. 4\", \"Figure 2\"]\n+    citation: Synthetic illustrative
+    data generated for this example\n output:\n   duration_seconds: 18\n-  width_px: 1920\n-  height_px: 1080\n\
+    -  aspect_ratio: \"16:9\"\n+  width_px: 1280\n+  height_px: 720\n+  aspect_ratio: 16:9\n   fps: 30\n   container:
+    mp4\n   video_codec: h264\n   audio: none\n style:\n   name: tomas_scientific\n-  version: \"0.5.1\"\n+  version:
+    0.5.1\n   overrides: {}\n equations:\n   - id: schematic_equation\n-    typst: \"r = E / (sigma + P)\"\n-  \
+    \  latex: \"r = \\\\frac{E}{\\\\sigma + P}\"\n+    typst: r = E / (sigma + P)\n+    latex: r = \\frac{E}{\\\
+    sigma + P}\n     symbols:\n-      r: {meaning: \"schematic response\"}\n-      E: {meaning: \"excitatory drive\"\
+    }\n-      P: {meaning: \"normalization pool drive\"}\n-      sigma: {meaning: \"positive stabilizing constant\"\
+    }\n+      r:\n+        meaning: schematic response\n+      E:\n+        meaning: excitatory drive\n+      P:\n\
+    +        meaning: normalization pool drive\n+      sigma:\n+        meaning: positive stabilizing constant\n\
+    \ audience: graduate_neuroscience\n-objective: >-\n-  A brief clip: show the response growing with excitatory
+    drive, then divide by a\n-  normalization pool and raise the pool while the viewer watches the response compress.\n\
+    +objective: 'A brief clip: show the response growing with excitatory drive, then divide by a normalization pool
+    and\n+  raise the pool while the viewer watches the response compress.'\n scientific_constraints:\n   - id:
+    schematic_equation_shown\n     kind: hard\n     equation: schematic_equation\n-    text: \"Illustrate the schematic
+    equation exactly as stored.\"\n+    text: Illustrate the schematic equation exactly as stored.\n   - id: interpretation\n\
+    \     kind: hard\n     equation: schematic_equation\n-    text: \"Show P in the denominator and make a larger
+    P visibly suppress the response.\"\n+    text: Show P in the denominator and make a larger P visibly suppress
+    the response.\n   - id: synthetic_label\n     kind: hard\n-    text: \"Explicitly label source CSV values as
+    synthetic, not measurements.\"\n+    text: Explicitly label source CSV values as synthetic, not measurements.\n\
+    \   - id: fixed_axes\n     kind: hard\n-    text: \"While the pool varies, keep the drive axis and the response
+    axis fixed.\"\n+    text: While the pool varies, keep the drive axis and the response axis fixed.\n timeline:\n\
+    \   - id: introduction\n     at_seconds: 0\n     tolerance_seconds: 0\n     kind: hard\n-    instruction: \"\
+    Show the excitation-drive curve with a caption.\"\n+    instruction: Show the excitation-drive curve with a
+    caption.\n   - id: normalization\n     at_seconds: 6\n     tolerance_seconds: 1\n     kind: preferred\n-   \
+    \ instruction: \"Introduce the pool in the equation and raise it.\"\n+    instruction: Introduce the pool in
+    the equation and raise it.\n direction:\n-  tone: \"Minimal, precise, scientific\"\n+  tone: Minimal, precise,
+    scientific\n   avoid:\n-    - \"Decorative flourishes\"\n-    - \"Unlabeled axes\"\n-    - \"Distracting transitions\"\
+    \n+    - Decorative flourishes\n+    - Unlabeled axes\n+    - Distracting transitions\n extensions: {}"
+scientific_review_required: false
+validation_warnings: []

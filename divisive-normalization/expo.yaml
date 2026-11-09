@@ -11,10 +11,15 @@ device: a dial on a parameter driving a response surface; the static figure as t
 clips:
 - dials_on_the_model
 - contrast_response
+# manim8's divisive_normalization example, the seam's end-to-end test; on no slide until its schematic
+# equation is replaced and signed off (clips/families/divisive_normalization/divisive_normalization_intro)
+- divisive_normalization_intro
 manim8_kinds:
 - surface_plot
 - equation_block
 - function_plot
+- scientific_plot
+- text_caption
 presets:
 - paper
 author: Tomas Knapen

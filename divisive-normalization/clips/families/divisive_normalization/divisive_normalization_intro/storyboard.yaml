@@ -1,0 +1,112 @@
+schema_version: "1.0"
+project_id: divisive_normalization_intro
+based_on_animation_revision: "example_initial"
+scenes:
+  - id: excitation
+    start_seconds: 0
+    end_seconds: 6
+    purpose: "Excitatory drive alone: the response grows with it."
+    narration:
+      text: "The response begins with excitatory drive: as the drive grows, so does the response."
+    objects:
+      - id: drive_caption
+        kind: text_caption
+        style_role: foreground
+        params: {text: "Excitatory drive alone", role: body}
+      - id: drive_note
+        kind: text_caption
+        style_role: secondary_text
+        params: {text: "the pool is held low", role: caption, below: drive_caption}
+        reveal_at_seconds: 2
+      - id: drive_curve
+        kind: scientific_plot
+        style_role: primary_signal
+        data:
+          source: responses
+          encoding: {x: excitation_E, y: response_r, group: condition}
+          transforms:
+            - {op: filter, column: condition, equals: low_pool}
+            - {op: scale, column: response_r, by: {parameter: g, default: 1}}
+        params:
+          x_label: "excitatory drive E"
+          y_label: "response r"
+          y_range: [0, 8]
+          data_label: "synthetic data"
+    actions:
+      - id: gain
+        kind: vary_parameter
+        target: drive_curve
+        parameter: g
+        to: 1.5
+        at_seconds: 4
+        duration_seconds: 1.3
+        value_label: "gain g"
+    snapshots:
+      - id: excitation_visible
+        at_seconds: 4
+        description: "The caption with its note beneath it, and the synthetic excitation curve with labelled axes, before the gain sweep begins."
+  - id: normalization
+    start_seconds: 6
+    end_seconds: 18
+    purpose: "Divide by a normalization pool, then raise the pool and watch the response compress."
+    patterns: [sweep_with_readout]
+    narration:
+      text: >-
+        Dividing by a pool P compresses the response as the pool grows; a larger sigma
+        softens the division as the pool recedes.
+    objects:
+      - id: response_curve
+        kind: function_plot
+        style_role: primary_signal
+        equation: {id: schematic_equation}
+        params:
+          x_label: "excitatory drive E"
+          y_label: "response r"
+          x_range: [0, 10]
+          y_range: [0, 6]
+          anchor: center_left
+          width_fraction: 0.55
+          parameters: {sigma: 1, P: 1}
+          series:
+            - {label: "schematic response", expression: "x / (sigma + P)"}
+          data_label: "schematic curve from the equation"
+      - id: normalization_equation
+        kind: equation_block
+        style_role: foreground
+        equation: {id: schematic_equation, highlight: [P, sigma]}
+        params: {anchor: top_right, scale: 0.9}
+        reveal_at_seconds: 7
+    actions:
+      - id: raise_pool
+        kind: vary_parameter
+        target: response_curve
+        parameter: P
+        to: 4
+        at_seconds: 8.5
+        duration_seconds: 4
+        emphasize: [normalization_equation]
+      - id: stabilize
+        kind: vary_parameter
+        target: response_curve
+        parameter: sigma
+        to: 3
+        at_seconds: 13.5
+        duration_seconds: 3.5
+        emphasize: [normalization_equation]
+      - id: lower_pool
+        kind: vary_parameter
+        target: response_curve
+        parameter: P
+        to: 1
+        at_seconds: 13.5
+        duration_seconds: 3.5
+    snapshots:
+      - id: pool_introduced
+        at_seconds: 8
+        description: "The schematic response curve for P = 1 with the equation beside it, P and sigma highlighted."
+      - id: pool_raised
+        at_seconds: 13
+        description: "After the first sweep the curve is compressed to a fifth of its slope and the readout under the equation reads P = 4.0; the axes are unchanged."
+      - id: rebalanced
+        at_seconds: 17.2
+        description: "After sigma rose to 3 while the pool fell back to 1, the slope is a quarter: the readouts read P = 1.0 and σ = 3.0."

@@ -1,0 +1,31 @@
+schema_version: '1.0'
+proposal:
+  schema_version: '1.0'
+  id: prop_lk_style_20261109t101043_lecturekit_paper_0_1_0
+  kind: revise_spec
+  created_at: '2026-11-09T10:10:43+00:00'
+  author: lecturekit (lk theme --manim8)
+  summary: Use the bridged lecturekit style lecturekit_paper@0.1.0
+  rationale: The deck's brand, mapped onto manim8's palette roles by `lk theme --manim8`, so that the clip 
+    matches the slides it sits on.
+  in_response_to: []
+  uncertainties: []
+  claims: []
+  targets:
+    - file: animation.yaml
+      patch:
+        - op: replace
+          path: /style/name
+          value: lecturekit_paper
+        - op: replace
+          path: /style/version
+          value: 0.1.0
+  touches_science: false
+applied_at: '2026-11-09T10:10:43+00:00'
+applied_to_revision: working
+diffs:
+  animation.yaml: "--- a/animation.yaml\n+++ b/animation.yaml\n@@ -17,8 +17,8 @@\n   video_codec: h264\n   audio:
+    none\n style:\n-  name: tomas_scientific\n-  version: 0.5.1\n+  name: lecturekit_paper\n+  version: 0.1.0\n\
+    \   overrides: {}\n equations:\n   - id: schematic_equation"
+scientific_review_required: false
+validation_warnings: []

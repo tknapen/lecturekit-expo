@@ -1,0 +1,71 @@
+schema_version: '1.0'
+id: divisive_normalization_intro
+title: 'Divisive normalization: excitation and pool'
+sources:
+  - id: responses
+    type: csv
+    path: data/synthetic_responses.csv
+    role: illustrative_data
+    citation: Synthetic illustrative data generated for this example
+output:
+  duration_seconds: 18
+  width_px: 1280
+  height_px: 720
+  aspect_ratio: 16:9
+  fps: 30
+  container: mp4
+  video_codec: h264
+  audio: none
+style:
+  name: lecturekit_paper
+  version: 0.1.0
+  overrides: {}
+equations:
+  - id: schematic_equation
+    typst: r = E / (sigma + P)
+    latex: r = \frac{E}{\sigma + P}
+    symbols:
+      r:
+        meaning: schematic response
+      E:
+        meaning: excitatory drive
+      P:
+        meaning: normalization pool drive
+      sigma:
+        meaning: positive stabilizing constant
+audience: graduate_neuroscience
+objective: 'A brief clip: show the response growing with excitatory drive, then divide by a normalization pool and
+  raise the pool while the viewer watches the response compress.'
+scientific_constraints:
+  - id: schematic_equation_shown
+    kind: hard
+    equation: schematic_equation
+    text: Illustrate the schematic equation exactly as stored.
+  - id: interpretation
+    kind: hard
+    equation: schematic_equation
+    text: Show P in the denominator and make a larger P visibly suppress the response.
+  - id: synthetic_label
+    kind: hard
+    text: Explicitly label source CSV values as synthetic, not measurements.
+  - id: fixed_axes
+    kind: hard
+    text: While the pool varies, keep the drive axis and the response axis fixed.
+timeline:
+  - id: introduction
+    at_seconds: 0
+    tolerance_seconds: 0
+    kind: hard
+    instruction: Show the excitation-drive curve with a caption.
+  - id: normalization
+    at_seconds: 6
+    tolerance_seconds: 1
+    kind: preferred
+    instruction: Introduce the pool in the equation and raise it.
+direction:
+  tone: Minimal, precise, scientific
+  avoid:
+    - Decorative flourishes
+    - Unlabeled axes
+    - Distracting transitions
+extensions: {}
