@@ -1,7 +1,7 @@
-# The engine, pinned by commit (lecturekit 0.3.0). Its manim8 extra pins manim8 by commit too (0.1.0a0, d37489e,
+# The engine, pinned by commit (lecturekit 0.3.1). Its manim8 extra pins manim8 by commit too (0.1.0a0, d37489e,
 # Python 3.12 or later), and clips
 # brings Manim for kit scenes; Manim needs Cairo and Pango (libcairo2-dev libpango1.0-dev pkg-config on Debian).
 # Moving the pin: change the commit here (or a tag, once tags are pushed), install, run `python tools/vendor_extension.py`, then `tools/check_meta.py`.
 # The weekly build (.github/workflows/build.yml) installs lecturekit's main branch in place of this commit.
-lecturekit[review,figures,clips,manim8] @ git+https://github.com/tknapen/lecturekit@98e0e0f5f962ac41b0d44d995565067d053e6f43
+lecturekit[review,figures,clips,manim8] @ git+https://github.com/tknapen/lecturekit@959c3e48e7e3f6a26d1e3bad0cdeb2b53d12b342
 pyyaml>=6
