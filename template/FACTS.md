@@ -5,4 +5,4 @@ checked. A claim that is not here is not on a slide.
 
 | Claim | Slide | Source (page, table, figure) | Checked | Status |
 | --- | --- | --- | --- | --- |
-|  |  |  | 2026-11-08 | to confirm |
+|  |  |  | 2026-11-09 | to confirm |

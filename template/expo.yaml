@@ -1,4 +1,10 @@
-# what the gallery shows about this project (tools/gallery.py)
+# what the gallery shows about this project (tools/gallery.py); tools/check_meta.py checks it:
+# - minutes equals `budget:` in the front matter of slides.qmd;
+# - clips are slugs (lowercase letters, digits and underscores, starting with a letter), the names the deck uses
+#   in clip= and the manim8 project directories under clips/families/<family>/;
+# - manim8_kinds are kinds in manim8's registry (scianim_core.components.REGISTRY), and include every kind a
+#   storyboard under clips/ uses;
+# - presets are paper and, where the project declares it, dark (the continuous build then builds both).
 title: A lecture (template)
 minutes: 45
 field: ''
