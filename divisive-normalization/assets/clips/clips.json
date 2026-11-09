@@ -7,18 +7,28 @@
       "rebalanced": "assets/clips/divisive_normalization_intro.rebalanced.png"
     },
     "duration": 18.0,
+    "end": {
+      "frame": 539,
+      "pts": 17.966667,
+      "still": "assets/clips/divisive_normalization_intro.f0539.png"
+    },
+    "format": 2,
     "fps": 30.0,
+    "frames": 540,
     "height": 720,
     "job": {
-      "cache_key": "sha256:7d391f7bb51b8c8df188c073585a34218e1172a07dcd82c45401ab355835ce00",
-      "id": "job_20261109T101102_d980fd",
+      "cache_key": "sha256:2cb1ab577341f79b648595e805d6297c1f3c9bd33578e24a1c7cb48f413b7366",
+      "id": "job_20261109T182556_d0c253",
       "registry_version": "0.5.0",
       "style": "lecturekit_paper@0.1.0"
     },
+    "poster": "assets/clips/divisive_normalization_intro.f0000.png",
     "producer": "manim8",
     "revision": "working",
+    "sha256": "6a72732c768d7f21631ded52f595cfa8dcf1719a63e3e16cae723f936be80703",
     "source": "clips/families/divisive_normalization/divisive_normalization_intro",
     "still": "assets/clips/divisive_normalization_intro.rebalanced.png",
+    "stops": [],
     "video": "assets/clips/divisive_normalization_intro.mp4",
     "width": 1280
   }
