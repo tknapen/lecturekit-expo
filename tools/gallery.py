@@ -5,15 +5,17 @@
     python tools/gallery.py --out site      # another output directory
 
 A project is a directory with an `expo.yaml` beside a `_quarto.yml`. For each, the gallery card shows the title,
-the minutes, the field, the deck type, the teaching device it demonstrates, the manim8 kinds it uses, the sources,
-and links to the live deck, the study PDF, the contact sheet and SESSION.md when they exist. Projects that have not
-been built yet are listed without links. No dependency beyond PyYAML.
+the minutes, the field, the deck type, the teaching device it demonstrates, the manim8 kinds it uses, the clips in
+its index, the sources, and links to the live deck and the study PDF of each preset it was built in (`_build`, and
+`_build-dark` for the dark preset), the contact sheets (`review/shots`, `review/shots-dark`) and SESSION.md. A
+project whose paper build is missing says "not built yet". No dependency beyond PyYAML.
 """
 
 from __future__ import annotations
 
 import argparse
 import html
+import json
 import shutil
 from pathlib import Path
 
@@ -51,37 +53,56 @@ def projects() -> list[tuple[Path, dict]]:
 
 def card(project: Path, meta: dict, out: Path) -> str:
     name = project.name
-    build = project / "_build"
     dest = out / name
+    if dest.exists():
+        shutil.rmtree(dest)                       # no stale outputs of an earlier run
     links = []
-    if (build / "slides-live.html").exists():
-        shutil.copytree(build, dest, dirs_exist_ok=True)
-        links.append(f'<a href="{name}/slides-live.html">live deck</a>')
-    if (build / "slides-study.pdf").exists():
-        links.append(f'<a href="{name}/slides-study.pdf">study PDF</a>')
-    sheet = project / "review" / "shots" / "sheet.png"
-    if sheet.exists():
-        dest.mkdir(parents=True, exist_ok=True)
-        shutil.copy2(sheet, dest / "sheet.png")
-        links.append(f'<a href="{name}/sheet.png">contact sheet</a>')
+    for build, sub, label in ((project / "_build", "", ""), (project / "_build-dark", "dark/", " (dark)")):
+        if (build / "slides-live.html").exists():
+            shutil.copytree(build, dest / sub, dirs_exist_ok=True)
+            links.append(f'<a href="{name}/{sub}slides-live.html">live deck{label}</a>')
+        if (build / "slides-study.pdf").exists():
+            links.append(f'<a href="{name}/{sub}slides-study.pdf">study PDF{label}</a>')
+    for shots, label in (("shots", ""), ("shots-dark", " (dark)")):
+        sheet = project / "review" / shots / "sheet.png"
+        if sheet.exists():
+            dest.mkdir(parents=True, exist_ok=True)
+            target = f"sheet{'-dark' if label else ''}.png"
+            shutil.copy2(sheet, dest / target)
+            links.append(f'<a href="{name}/{target}">contact sheet{label}</a>')
     session = project / "SESSION.md"
     if session.exists():
         dest.mkdir(parents=True, exist_ok=True)
         shutil.copy2(session, dest / "SESSION.md")
         links.append(f'<a href="{name}/SESSION.md">session</a>')
+    built = (project / "_build" / "slides-live.html").exists()
     e = html.escape
     kinds = ", ".join(meta.get("manim8_kinds", []) or [])
     sources = "".join(f"<li>{e(str(s))}</li>" for s in meta.get("sources", []) or [])
-    status = "" if links else '<span>not built yet</span>'
+    status = "" if built else '<span>not built yet</span>'
+    rendered = rendered_clips(project)
+    clips = f'<div class="meta">clips rendered: {e(", ".join(rendered))}</div>' if rendered else ""
     return f"""
 <article class="card">
   <div class="eyebrow">{e(str(meta.get('deck', 'lecture')))} · {e(str(meta.get('field', '')))}</div>
   <h2>{e(str(meta.get('title', name)))}</h2>
   <div class="meta">{e(str(meta.get('minutes', '?')))} minutes · {e(str(meta.get('author', '')))}{(' · manim8: ' + e(kinds)) if kinds else ''}</div>
   <div class="device">{e(str(meta.get('device', '')))}</div>
+  {clips}
   <div class="links">{status}{' '.join(links)}</div>
   <ul class="sources">{sources}</ul>
 </article>"""
+
+
+def rendered_clips(project: Path) -> list[str]:
+    """The clips in the project's index (assets/clips/clips.json), by name."""
+    index = project / "assets" / "clips" / "clips.json"
+    if not index.exists():
+        return []
+    try:
+        return sorted(json.loads(index.read_text(encoding="utf-8")))
+    except ValueError:
+        return []
 
 
 def main() -> int:
@@ -102,7 +123,9 @@ def main() -> int:
   facts, manifest and the prompts of the session that built it. Content CC BY 4.0.</p>
 </header>
 <main>{''.join(cards) or '<p>No projects yet.</p>'}</main>
-<footer>Built with <a href="https://github.com/tknapen/lecturekit">lecturekit</a>. The plan of this expo is in PLAN.md.</footer>
+<footer>Built with <a href="https://github.com/tknapen/lecturekit">lecturekit</a> and
+<a href="https://github.com/tknapen/manim8">manim8</a>. The plan of this expo is
+<a href="https://github.com/tknapen/lecturekit-expo/blob/main/PLAN.md">PLAN.md</a> in its repository.</footer>
 </body></html>
 """
     (out / "index.html").write_text(page, encoding="utf-8")
