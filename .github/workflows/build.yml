@@ -15,7 +15,7 @@ on:
   workflow_dispatch:
     inputs:
       engine:
-        description: "lecturekit to build with: main (its main branch) or pinned (the tag in requirements.txt)"
+        description: "lecturekit to build with: main (its main branch) or pinned (the commit in requirements.txt)"
         type: choice
         options: [main, pinned]
         default: main

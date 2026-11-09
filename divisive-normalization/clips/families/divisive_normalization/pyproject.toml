@@ -16,5 +16,5 @@ package = false
 
 [tool.uv.sources]
 # The bridge and the contracts from git: the commit the control plane was installed from (ADR-043).
-manim8-bridge = { git = "https://github.com/tknapen/manim8", rev = "4a39c3451be0a83ed8b498935a5dba78bba24a77", subdirectory = "packages/scianim_bridge" }
-manim8-core = { git = "https://github.com/tknapen/manim8", rev = "4a39c3451be0a83ed8b498935a5dba78bba24a77", subdirectory = "packages/scianim_core" }
+manim8-bridge = { git = "https://github.com/tknapen/manim8", rev = "d37489eeb08df040f18201b37450514220bb7fcd", subdirectory = "packages/scianim_bridge" }
+manim8-core = { git = "https://github.com/tknapen/manim8", rev = "d37489eeb08df040f18201b37450514220bb7fcd", subdirectory = "packages/scianim_core" }

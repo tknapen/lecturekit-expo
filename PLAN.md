@@ -8,7 +8,7 @@ and two example decks; the expo is where the method is seen at work, many times 
 
 Four things the engine repository cannot do.
 
-1. It proves the separation. No project carries engine code. The expo pins the package once, by tag
+1. It proves the separation. No project carries engine code. The expo pins the package once, by commit
    (`requirements.txt`: lecturekit 0.3.0), and vendors its extension once (`_extensions/lecturekit` at the root,
    which every project's `_extensions` links to); the continuous build fails when that copy differs by a byte from
    the installed package's. A project taken out of the expo gets its own copy (`lk new --vendor-only`). If a project
@@ -30,7 +30,7 @@ Four things the engine repository cannot do.
 ```text
 lecturekit-expo/
 ├── README.md                     the gallery's front page is generated; this says what the expo is
-├── requirements.txt              the engine, pinned by tag, with its clips and manim8 extras
+├── requirements.txt              the engine, pinned by commit, with its clips and manim8 extras
 ├── _extensions/lecturekit/       the engine's extension, vendored once; every project's _extensions links here
 ├── _gallery/                     tools/gallery.py reads every project's expo.yaml and review sheet into index.html
 ├── tools/                        check_meta.py, check_clips.py, vendor_extension.py, gallery.py, projects.py
@@ -165,10 +165,10 @@ to add when manim8 needs a showcase outside neuroscience.
 
 - Content under CC BY 4.0, each project with its author. Sources go in only when redistributable; otherwise a link
   and the digitised values, with the method of digitising in `MANIFEST.md`.
-- One engine for all projects: `requirements.txt` pins lecturekit by tag (its manim8 extra pins manim8 by tag too),
+- One engine for all projects: `requirements.txt` pins lecturekit by commit (its manim8 extra pins manim8 by commit too),
   and the extension is vendored once at the root. The continuous build installs the pin on every push and pull
   request and fails when the vendored extension differs from the installed one; every Monday it installs
-  lecturekit's `main` instead, so a breaking change is seen before a release. Moving the pin is one commit: the tag,
+  lecturekit's `main` instead, so a breaking change is seen before a release. Moving the pin is one commit: the engine commit,
   `python tools/vendor_extension.py`, and the decks rebuilt.
 - Each project has its own `_brand.yml` and `_brand-dark.yml`; a project builds in the dark preset where its
   `expo.yaml` declares `dark` (signal detection today), and the continuous build then builds and checks both.

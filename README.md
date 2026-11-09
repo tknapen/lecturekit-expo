@@ -12,11 +12,11 @@ The reasoning behind the expo, the gallery, the catalogue of topics and the firs
 ## Layout
 
 ```text
-_extensions/lecturekit/   the engine's Quarto extension, vendored once for all projects: lecturekit 0.3.0, the tag
+_extensions/lecturekit/   the engine's Quarto extension, vendored once for all projects: lecturekit 0.3.0, the commit
                           requirements.txt pins; the build fails when it differs from the installed package's copy
 template/                 the project convention: lk new 0.3.0's scaffold plus sources/, SESSION.md and expo.yaml
 <project>/                one folder per project: a lecturekit project with the method's files
-requirements.txt          the engine, pinned by tag: lecturekit[review,figures,clips,manim8] @ ...@v0.3.0
+requirements.txt          the engine, pinned by commit: lecturekit[review,figures,clips,manim8] @ ...@98e0e0f
 tools/check_meta.py       expo.yaml against the engines: budgets, clip names, manim8 kinds, the vendored extension
 tools/check_clips.py      every manim8 clip in an index against the manifest of the job that made it
 tools/vendor_extension.py replaces the shared extension with the installed engine's (after moving the pin)
@@ -48,7 +48,7 @@ manim8 from GitHub at a fixed commit.
 ## Build
 
 Python 3.12 (manim8 needs it), Quarto 1.11 and a TeX distribution with XeLaTeX as for the engine
-([INSTALL.md](https://github.com/tknapen/lecturekit/blob/v0.3.0/docs/INSTALL.md)), and for the clips the Cairo and
+([INSTALL.md](https://github.com/tknapen/lecturekit/blob/98e0e0f5f962ac41b0d44d995565067d053e6f43/docs/INSTALL.md)), and for the clips the Cairo and
 Pango headers and ffmpeg (`libcairo2-dev libpango1.0-dev pkg-config ffmpeg` on Debian and Ubuntu).
 
 ```sh
@@ -66,7 +66,7 @@ python tools/gallery.py                    # _gallery/index.html
 
 `uv pip install -r requirements.txt` works as well.
 
-Moving the engine: change the tag in `requirements.txt`, install it, run `python tools/vendor_extension.py`, build
+Moving the engine: change the commit in `requirements.txt`, install it, run `python tools/vendor_extension.py`, build
 every project, and commit the two together. `lk build` refuses an extension whose version differs from the
 package's in the major or (while the major is 0) the minor number, and `tools/check_meta.py` refuses any byte of
 difference.
@@ -81,7 +81,7 @@ difference.
   `lk build`, and `lk review overflow`, `contrast`, `shoot`, `measure` and `frags`, every one of them gating; then
   the gallery, which is published to Pages from `main`.
 
-Every Monday, and when run by hand, the same jobs install lecturekit's `main` branch in place of the tag, so that
+Every Monday, and when run by hand, the same jobs install lecturekit's `main` branch in place of the pinned commit, so that
 an engine change that breaks a deck is seen here before it is released. That run reports the vendored extension's
 drift from `main` as a warning, builds with `main`'s own copy, and publishes nothing.
 
@@ -92,7 +92,7 @@ drift from `main` as a warning, builds with `main`'s own copy, and publishes not
    `SESSION.md` and `expo.yaml` from `template/`.
 2. Put the sources in `sources/` (or links and digitised values) and write `STORYBOARD.md` by hand.
 3. Build the plan, the simulations, the figures, the clips and the slides as the engine's
-   [WORKFLOW.md](https://github.com/tknapen/lecturekit/blob/v0.3.0/docs/WORKFLOW.md) describes, keeping `SESSION.md`
+   [WORKFLOW.md](https://github.com/tknapen/lecturekit/blob/98e0e0f5f962ac41b0d44d995565067d053e6f43/docs/WORKFLOW.md) describes, keeping `SESSION.md`
    as you go. For manim8 clips, `lk new --manim8 <folder>` makes `clips/` a workspace.
 4. `lk build`, the review rounds, `FACTS.md` and `MANIFEST.md`; fill `expo.yaml` (title, minutes equal to the
    deck's budget, device, clip names as slugs, manim8 kinds by their registry names) and run

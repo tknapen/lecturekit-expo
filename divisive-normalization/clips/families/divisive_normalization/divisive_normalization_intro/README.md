@@ -30,7 +30,7 @@ of that test, not material of the lecture.
 ## What it is
 
 - Copied with `scianim project init divisive_normalization_intro --family divisive_normalization --from-example
-  divisive_normalization` from manim8 0.1.0a0 (commit 4a39c34), so the id is this directory's name.
+  divisive_normalization` from manim8 0.1.0a0 (commit d37489e), so the id is this directory's name.
 - Two scenes, 18 s: `excitation` (0 to 6 s, the drive curve from the synthetic data, a gain sweep) and
   `normalization` (6 to 18 s, the schematic curve beside the equation; the pool P rises to 4, then sigma rises to 3
   while P falls back to 1).
@@ -51,6 +51,6 @@ python tools/check_clips.py divisive-normalization   # the index against the man
 ```
 
 The family environment (`../pyproject.toml`, `../uv.lock`) takes manim8's bridge and contracts from GitHub at the
-commit the control plane was installed from (4a39c34, the `v0.1.0a0` tag that lecturekit 0.3.0's manim8 extra
-names). Moving manim8: install the lecturekit that names the new tag, set `rev` of both sources in
+commit the control plane was installed from (d37489e, the commit that lecturekit 0.3.0's manim8 extra
+names). Moving manim8: install the lecturekit that names the new commit, set `rev` of both sources in
 `../pyproject.toml` to the new commit, run `uv lock` in `..`, and render again.

@@ -12,7 +12,7 @@ is null. The manifests are under each manim8 project's `renders/`, which are not
 `lk clips` in the same checkout. A project with a workspace but no manim8 entry is an error: its clips were not
 rendered.
 
-`tools/check_clip_index.py` is lecturekit's `.github/scripts/check_clip_index.py` at v0.3.0, copied unchanged (the
+`tools/check_clip_index.py` is lecturekit's `.github/scripts/check_clip_index.py` at 98e0e0f (0.3.0), copied unchanged (the
 wheel does not ship it). Exit 0 when every check holds, 1 otherwise.
 """
 
