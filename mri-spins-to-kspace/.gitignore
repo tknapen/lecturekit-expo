@@ -19,3 +19,6 @@ clips/**/renders/
 clips/**/.scianim/
 clips/**/.venv/
 __pycache__/
+# added by Quarto
+/.quarto/
+**/*.quarto_ipynb
