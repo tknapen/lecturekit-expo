@@ -26,7 +26,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-from check_clip_index import check  # noqa: E402
+from check_clip_index import check
 
 
 def workspaces(names: list[str]) -> list[Path]:

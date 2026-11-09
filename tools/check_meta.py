@@ -99,7 +99,7 @@ def projects() -> list[Path]:
 
 def front_matter(qmd: Path) -> dict:
     text = qmd.read_text(encoding="utf-8")
-    m = re.match(r"---\s*\n(.*?)\n---\s*\n", text, re.S)
+    m = re.match(r"---\s*\n(.*?)\n---\s*\n", text, re.DOTALL)
     return (yaml.safe_load(m.group(1)) or {}) if m else {}
 
 
