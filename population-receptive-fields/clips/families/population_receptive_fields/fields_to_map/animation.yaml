@@ -1,0 +1,97 @@
+schema_version: "1.0"
+id: fields_to_map
+title: "From fitted receptive fields to a map"
+sources:
+  - id: voxels
+    type: csv
+    path: data/voxels.csv
+    role: illustrative_data
+    citation: "Simulation: 690 voxels on a model sheet of early visual cortex (sheet position w = log(z + 0.75) of the field position z, pRF size 0.35 + 0.17 times eccentricity), each simulated with noise on a bar run and fitted on its own with prfmodel. The fitted centres and sizes are listed; not a measurement."
+  - id: brief
+    type: markdown
+    path: references/brief.md
+    role: explanatory_text
+  - id: original_scene
+    type: text
+    path: references/original_scene.py
+    role: composition_reference
+    citation: "The hand-written Manim scene of the lecture of 18 November 2026; read for geometry and timing, do not run."
+  - id: last_frame
+    type: image
+    path: references/last_frame.jpg
+    role: target_keyframe
+output:
+  duration_seconds: 18
+  width_px: 1280
+  height_px: 720
+  aspect_ratio: "16:9"
+  fps: 30
+  container: mp4
+  video_codec: h264
+  audio: none
+style:
+  name: lecturekit_paper
+  version: "0.1.0"
+  overrides: {}
+equations: []
+audience: "visitors of a lab website with a science background"
+objective: >-
+  Voxels are fitted one at a time. Each fit puts a dot at the voxel's fitted pRF centre in the visual
+  field and colours the voxel's square on a sheet of cortex by that centre's distance from fixation.
+  Bands of colour appear across the sheet although no fit knows about its neighbours: a map. Recoloured
+  by direction from fixation, the bands run the other way.
+scientific_constraints:
+  - id: data_exact
+    kind: hard
+    text: "One square per row of voxels.csv at (sheet_u, sheet_v) on a regular grid of step 0.085, and one dot at (x_fit_deg, y_fit_deg) in the right half of a visual field of radius 6.5 deg."
+  - id: order
+    kind: hard
+    text: "Squares and dots appear in the order of the 'order' column (across the sheet from one edge to the other), a square and its dot together."
+  - id: two_colourings
+    kind: hard
+    text: "First colouring: eccentricity_deg from 0 to 6.5 on one ordered ramp. Second: polar_angle_deg from +90 (upper vertical meridian) to -90 on a different ordered ramp. A square and its dot always share a colour; positions never change when the colour does."
+  - id: key_text
+    kind: hard
+    text: "A line of text names the current colouring: 'colour: distance from fixation', then 'colour: direction from fixation'."
+  - id: simulation_label
+    kind: hard
+    text: "The sheet is labelled as a sheet of cortex with one square per voxel; the page or a caption must say that the voxels are simulated."
+timeline:
+  - id: layout
+    at_seconds: 0
+    tolerance_seconds: 0
+    kind: hard
+    instruction: "Left: the right half of the visual field (semicircle, vertical meridian, fixation), labelled 'the visual field: fitted pRF centres'. Right: the empty sheet, labelled 'a sheet of cortex: one square per voxel'. The key line below."
+  - id: fits_arrive
+    at_seconds: 0.6
+    tolerance_seconds: 0.4
+    kind: preferred
+    instruction: "The 690 voxels arrive staggered over about 11 s at an even overall pace, each fading in small-to-full, coloured by eccentricity."
+  - id: eccentricity_map
+    at_seconds: 12.9
+    tolerance_seconds: 0.5
+    kind: preferred
+    instruction: "Rest on the complete eccentricity map for about 1.5 s."
+  - id: polar_angle
+    at_seconds: 13.2
+    tolerance_seconds: 0.5
+    kind: preferred
+    instruction: "All squares and dots change to the polar-angle ramp over 2.5 s while the key line changes; hold to the end."
+direction:
+  tone: "Plain, precise, unhurried"
+  avoid:
+    - "Titles inside the clip"
+    - "Rainbow ramps; a ramp that passes through the page background colour"
+  prefer:
+    - "Each ramp built from three or four palette roles of the active style, ordered in lightness, legible on its background in both themes; the original used warning, an ochre accent, a teal and primary_signal for eccentricity, and an orange, a purple and a teal for polar angle"
+    - "Labels and the key line in foreground or secondary_text; field outline and meridian in grid"
+    - "Identical geometry and timing under the light and the dark style"
+extensions:
+  website:
+    themes: [light, dark]
+    poster: last_frame
+  lecturekit:
+    stops:
+      - id: eccentricity
+        at_seconds: 12.9
+        label: "coloured by eccentricity"

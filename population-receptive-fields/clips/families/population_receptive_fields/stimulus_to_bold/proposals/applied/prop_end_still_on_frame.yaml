@@ -1,0 +1,41 @@
+schema_version: '1.0'
+proposal:
+  schema_version: '1.0'
+  id: prop_end_still_on_frame
+  kind: revise_storyboard
+  created_at: '2026-11-13T15:50:00+00:00'
+  author: agent:clip-stimulus_to_bold
+  summary: Move the end-state snapshot from 12.0 s to 11.9 s, onto a frame of the movie.
+  rationale: '`scianim inspect` on the final render reports the snapshot traces_complete as approximate: 12.0 s
+    lies beyond the last frame of a 12 s movie at 30 fps (11.967 s), so the sampled still is the nearest frame,
+    not the requested one. The picture is still from 11.35 s, when the cursor has faded, to the end; 11.9 s (frame
+    357) shows the same end state on a frame the movie has, in the snapshot and in the video alike.'
+  based_on_revision: working
+  in_response_to: []
+  uncertainties: []
+  claims: []
+  targets:
+    - file: storyboard.yaml
+      patch:
+        - op: replace
+          path: /scenes/0/snapshots/7/at_seconds
+          value: 11.9
+  touches_science: false
+applied_at: '2026-11-13T14:47:08+00:00'
+applied_to_revision: working
+diffs:
+  storyboard.yaml: "--- a/storyboard.yaml\n+++ b/storyboard.yaml\n@@ -178,6 +178,6 @@\n         description: 'The
+    cursor at 300 s, the end of the time axis, before it fades: both traces complete, the\n           run ends in
+    a blank so the field shows no bar.'\n       - id: traces_complete\n-        at_seconds: 12.0\n+        at_seconds:
+    11.9\n         description: 'The end state and study still: the field with the pRF and fixation, the strip,
+    and the complete\n           predicted neural and BOLD traces; no cursor, dots or bar.'"
+scientific_review_required: false
+validation_warnings:
+  - "action 'clock' moves at constant speed from its first frame to its last (easing: linear); the style asks for
+    slow in, slow out: omit `easing` to use `smooth`, or keep linear only for a motion that should read as mechanical"
+  - "action 'marks_off' moves 'run' 0.00s after 'clock' has finished; the style asks for a rest of 0.5s so the end
+    state is seen before it changes again: start it later or lengthen its lead-in"
+  - scene 'one_run' names pattern 'let_time_run' but uses none of its components (surface_plot, function_plot,
+    function_image)
+  - scene 'one_run' names pattern 'linked_views' but uses none of its components (function_plot, surface_plot,
+    function_image)

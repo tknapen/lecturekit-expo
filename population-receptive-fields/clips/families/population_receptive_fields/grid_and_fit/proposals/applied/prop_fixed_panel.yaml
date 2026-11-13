@@ -1,0 +1,700 @@
+schema_version: '1.0'
+proposal:
+  schema_version: '1.0'
+  id: prop_fixed_panel
+  kind: revise_storyboard
+  created_at: '2026-11-13T16:55:00+00:00'
+  author: agent:clip-grid_and_fit
+  summary: Draw the measured time course and the fit line at fixed places, so the geometry is identical under 
+    both styles.
+  rationale: "The final renders under lecturekit_paper and lecturekit_dark put the registered scientific_plot's
+    axes box 1.21 px apart vertically and 0.28 px horizontally (paper: left 532.54 px, bottom 506.16 px; dark: 532.26,
+    504.95), because the registry places the plot by the bounding box of its group, which holds the tick and axis
+    labels, and those follow the font (TeX Gyre Heros and Roboto). The lecturer's rule is that geometry is identical
+    under both styles, so the page can swap one video for the other. The measured trace, its axes and labels become
+    the builder grid_fit:time_course, which draws them in the original scene's axes box (Frame(-1.6, -2.0, 8.8,
+    4.4), y from the data's minimum minus 0.5 to its maximum plus 0.5, as the original) fitted into the safe area
+    like the field; the fit line becomes grid_fit:panel_text, centred under the axes at the original's place, since
+    a text_caption placed below the panel would follow the panel's labels and be left-aligned. This also brings
+    the panel to the reference frame: thin muted axes, time ticks only, 'measured voxel' at the top left in the
+    trace's ink, and the fit line centred under the time axis. Tick and axis labels take secondary_text, which reads
+    on the dark page (muted is 3.5 to 1 there)."
+  based_on_revision: working
+  in_response_to: []
+  uncertainties: []
+  claims:
+    - statement: The panel's value range is the measured voxel's minimum minus 0.5 to its maximum plus 0.5 
+        (-2.86 and 7.57 in the column measured), and its time range 0 to 306 s, as in the original scene.
+      source_id: original_scene
+      locator: D = Frame(-1.6, -2.0, 8.8, 4.4, (0, T_END), (Y.min() - 0.5, Y.max() + 0.5))
+      basis: source
+    - statement: The measured trace is the column measured of timecourses.csv against t_s, untransformed.
+      source_id: timecourses
+      locator: columns t_s, measured
+      basis: source
+  targets:
+    - file: storyboard.yaml
+      patch:
+        - op: replace
+          path: /scenes/0/objects
+          value:
+            - id: visual_field
+              kind: custom
+              params:
+                builder: grid_fit:visual_field
+                arguments:
+                  radius_deg: 4
+                  scale_bar_deg: 2
+                  roles:
+                    outline: hairline
+                    fixation: muted
+                    scale_bar: muted
+                  weights_px_at_1080p:
+                    outline: 3.6
+                    fixation: 3.1
+                    scale_bar: 3.6
+            - id: time_course
+              kind: custom
+              style_role: foreground
+              data:
+                source: timecourses
+                encoding:
+                  x: t_s
+                  y: measured
+              params:
+                builder: grid_fit:time_course
+                arguments:
+                  time_range:
+                    - 0
+                    - 306
+                  value_range:
+                    - -3.36
+                    - 8.07
+                  time_ticks:
+                    - 0
+                    - 100
+                    - 200
+                    - 300
+                  time_label: time (s)
+                  value_label: BOLD (% signal change)
+                  label: measured voxel
+                  roles:
+                    axes: muted
+                    ticks: secondary_text
+                    axis_labels: secondary_text
+                  weights_px_at_1080p:
+                    axes: 1.9
+                    trace: 3.0
+            - id: heading_grid
+              kind: custom
+              style_role: muted
+              params:
+                builder: grid_fit:field_heading
+                arguments:
+                  field: visual_field
+                  text: grid search
+                  text_role: body
+            - id: heading_refine
+              kind: custom
+              style_role: muted
+              reveal_at_seconds: 11.8
+              params:
+                builder: grid_fit:field_heading
+                arguments:
+                  field: visual_field
+                  text: refinement
+                  text_role: body
+            - id: candidate_path
+              kind: custom
+              data:
+                source: candidates
+                encoding:
+                  x: seq
+                  y: r2
+                transforms:
+                  - op: smooth
+                    column: seq
+                    window:
+                      parameter: candidate
+                      default: 0
+                  - op: smooth
+                    column: seq
+                    window:
+                      parameter: retire_kept
+                      default: 0
+              params:
+                builder: grid_fit:candidate_path
+                arguments:
+                  field: visual_field
+                  panel: time_course
+                  columns:
+                    x: x_deg
+                    y: y_deg
+                    sigma: sigma_deg
+                    r2: r2
+                    phase: phase
+                  predictions:
+                    source: timecourses
+                    time: t_s
+                    prefix: p
+                  kept_phases:
+                    - slow
+                    - fast
+                    - grid_best
+                  roles:
+                    candidate: primary_signal
+                    kept: muted
+                  text_roles:
+                    params: annotation
+                    r2: body
+                  weights_px_at_1080p:
+                    candidate: 4.8
+                    kept: 2.4
+                    prediction: 4.2
+                  dot_radius_px_at_1080p: 7
+                  dash_px_at_1080p: 9
+            - id: fit_line
+              kind: custom
+              style_role: foreground
+              reveal_at_seconds: 17.0
+              params:
+                builder: grid_fit:panel_text
+                arguments:
+                  panel: time_course
+                  text: 'fit: x 2.27°, y 0.99°, σ 0.85°, R² 0.86'
+                  text_role: body
+  touches_science: true
+applied_at: '2026-11-13T15:24:18+00:00'
+applied_to_revision: working
+diffs:
+  storyboard.yaml: "--- a/storyboard.yaml\n+++ b/storyboard.yaml\n@@ -29,8 +29,8 @@\n               outline: 3.6\n\
+    \               fixation: 3.1\n               scale_bar: 3.6\n-      - id: bold_plot\n-        kind: scientific_plot\n\
+    +      - id: time_course\n+        kind: custom\n         style_role: foreground\n         data:\n         \
+    \  source: timecourses\n@@ -38,28 +38,29 @@\n             x: t_s\n             y: measured\n         params:\n\
+    -          x_label: time (s)\n-          y_label: BOLD (% signal change)\n-          x_range:\n-           \
+    \ - 0\n-            - 306\n-          y_range:\n-            - -5\n-            - 10\n-          show_points:
+    false\n-          show_legend: false\n-          anchor: center_right\n-          width_fraction: 0.595\n- \
+    \         height_fraction: 0.529\n-      - id: voxel_label\n-        kind: custom\n-        style_role: foreground\n\
+    -        params:\n-          builder: grid_fit:plot_label\n+          builder: grid_fit:time_course\n      \
+    \     arguments:\n-            plot: bold_plot\n-            text: measured voxel\n-            text_role: annotation\n\
+    +            time_range:\n+              - 0\n+              - 306\n+            value_range:\n+           \
+    \   - -3.36\n+              - 8.07\n+            time_ticks:\n+              - 0\n+              - 100\n+  \
+    \            - 200\n+              - 300\n+            time_label: time (s)\n+            value_label: BOLD
+    (% signal change)\n+            label: measured voxel\n+            roles:\n+              axes: muted\n+  \
+    \            ticks: secondary_text\n+              axis_labels: secondary_text\n+            weights_px_at_1080p:\n\
+    +              axes: 1.9\n+              trace: 3.0\n       - id: heading_grid\n         kind: custom\n    \
+    \     style_role: muted\n@@ -101,7 +102,7 @@\n           builder: grid_fit:candidate_path\n           arguments:\n\
+    \             field: visual_field\n-            plot: bold_plot\n+            panel: time_course\n         \
+    \    columns:\n               x: x_deg\n               y: y_deg\n@@ -129,14 +130,15 @@\n             dot_radius_px_at_1080p:
+    7\n             dash_px_at_1080p: 9\n       - id: fit_line\n-        kind: text_caption\n+        kind: custom\n\
+    \         style_role: foreground\n         reveal_at_seconds: 17.0\n         params:\n-          text: 'fit:
+    x 2.27°, y 0.99°, σ 0.85°, R² 0.86'\n-          role: body\n-          below: bold_plot\n-          gap_px_at_1080p:
+    64\n+          builder: grid_fit:panel_text\n+          arguments:\n+            panel: time_course\n+     \
+    \       text: 'fit: x 2.27°, y 0.99°, σ 0.85°, R² 0.86'\n+            text_role: body\n     actions:\n     \
+    \  - id: hop_01\n         kind: vary_parameter"
+scientific_review_required: true
+validation_warnings:
+  - "action 'hop_05' moves 'candidate_path' 0.00s after 'hop_04' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_06' moves 'candidate_path' 0.10s after 'hop_04' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_07' moves 'candidate_path' 0.20s after 'hop_04' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_08' moves 'candidate_path' 0.30s after 'hop_04' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_09' moves 'candidate_path' 0.40s after 'hop_04' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_06' moves 'candidate_path' 0.00s after 'hop_05' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_07' moves 'candidate_path' 0.10s after 'hop_05' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_08' moves 'candidate_path' 0.20s after 'hop_05' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_09' moves 'candidate_path' 0.30s after 'hop_05' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_10' moves 'candidate_path' 0.40s after 'hop_05' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_07' moves 'candidate_path' 0.00s after 'hop_06' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_08' moves 'candidate_path' 0.10s after 'hop_06' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_09' moves 'candidate_path' 0.20s after 'hop_06' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_10' moves 'candidate_path' 0.30s after 'hop_06' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_11' moves 'candidate_path' 0.40s after 'hop_06' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_08' moves 'candidate_path' 0.00s after 'hop_07' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_09' moves 'candidate_path' 0.10s after 'hop_07' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_10' moves 'candidate_path' 0.20s after 'hop_07' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_11' moves 'candidate_path' 0.30s after 'hop_07' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_12' moves 'candidate_path' 0.40s after 'hop_07' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_09' moves 'candidate_path' 0.00s after 'hop_08' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_10' moves 'candidate_path' 0.10s after 'hop_08' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_11' moves 'candidate_path' 0.20s after 'hop_08' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_12' moves 'candidate_path' 0.30s after 'hop_08' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_13' moves 'candidate_path' 0.40s after 'hop_08' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_10' moves 'candidate_path' 0.00s after 'hop_09' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_11' moves 'candidate_path' 0.10s after 'hop_09' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_12' moves 'candidate_path' 0.20s after 'hop_09' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_13' moves 'candidate_path' 0.30s after 'hop_09' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_14' moves 'candidate_path' 0.40s after 'hop_09' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_11' moves 'candidate_path' 0.00s after 'hop_10' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_12' moves 'candidate_path' 0.10s after 'hop_10' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_13' moves 'candidate_path' 0.20s after 'hop_10' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_14' moves 'candidate_path' 0.30s after 'hop_10' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_15' moves 'candidate_path' 0.40s after 'hop_10' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_12' moves 'candidate_path' 0.00s after 'hop_11' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_13' moves 'candidate_path' 0.10s after 'hop_11' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_14' moves 'candidate_path' 0.20s after 'hop_11' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_15' moves 'candidate_path' 0.30s after 'hop_11' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_16' moves 'candidate_path' 0.40s after 'hop_11' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_13' moves 'candidate_path' 0.00s after 'hop_12' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_14' moves 'candidate_path' 0.10s after 'hop_12' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_15' moves 'candidate_path' 0.20s after 'hop_12' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_16' moves 'candidate_path' 0.30s after 'hop_12' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_17' moves 'candidate_path' 0.40s after 'hop_12' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_14' moves 'candidate_path' 0.00s after 'hop_13' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_15' moves 'candidate_path' 0.10s after 'hop_13' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_16' moves 'candidate_path' 0.20s after 'hop_13' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_17' moves 'candidate_path' 0.30s after 'hop_13' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_18' moves 'candidate_path' 0.40s after 'hop_13' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_15' moves 'candidate_path' 0.00s after 'hop_14' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_16' moves 'candidate_path' 0.10s after 'hop_14' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_17' moves 'candidate_path' 0.20s after 'hop_14' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_18' moves 'candidate_path' 0.30s after 'hop_14' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_19' moves 'candidate_path' 0.40s after 'hop_14' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_16' moves 'candidate_path' 0.00s after 'hop_15' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_17' moves 'candidate_path' 0.10s after 'hop_15' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_18' moves 'candidate_path' 0.20s after 'hop_15' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_19' moves 'candidate_path' 0.30s after 'hop_15' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_20' moves 'candidate_path' 0.40s after 'hop_15' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_17' moves 'candidate_path' 0.00s after 'hop_16' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_18' moves 'candidate_path' 0.10s after 'hop_16' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_19' moves 'candidate_path' 0.20s after 'hop_16' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_20' moves 'candidate_path' 0.30s after 'hop_16' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_21' moves 'candidate_path' 0.40s after 'hop_16' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_18' moves 'candidate_path' 0.00s after 'hop_17' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_19' moves 'candidate_path' 0.10s after 'hop_17' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_20' moves 'candidate_path' 0.20s after 'hop_17' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_21' moves 'candidate_path' 0.30s after 'hop_17' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_22' moves 'candidate_path' 0.40s after 'hop_17' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_19' moves 'candidate_path' 0.00s after 'hop_18' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_20' moves 'candidate_path' 0.10s after 'hop_18' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_21' moves 'candidate_path' 0.20s after 'hop_18' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_22' moves 'candidate_path' 0.30s after 'hop_18' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_23' moves 'candidate_path' 0.40s after 'hop_18' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_20' moves 'candidate_path' 0.00s after 'hop_19' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_21' moves 'candidate_path' 0.10s after 'hop_19' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_22' moves 'candidate_path' 0.20s after 'hop_19' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_23' moves 'candidate_path' 0.30s after 'hop_19' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_24' moves 'candidate_path' 0.40s after 'hop_19' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_21' moves 'candidate_path' 0.00s after 'hop_20' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_22' moves 'candidate_path' 0.10s after 'hop_20' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_23' moves 'candidate_path' 0.20s after 'hop_20' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_24' moves 'candidate_path' 0.30s after 'hop_20' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_25' moves 'candidate_path' 0.40s after 'hop_20' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_22' moves 'candidate_path' 0.00s after 'hop_21' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_23' moves 'candidate_path' 0.10s after 'hop_21' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_24' moves 'candidate_path' 0.20s after 'hop_21' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_25' moves 'candidate_path' 0.30s after 'hop_21' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_26' moves 'candidate_path' 0.40s after 'hop_21' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_23' moves 'candidate_path' 0.00s after 'hop_22' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_24' moves 'candidate_path' 0.10s after 'hop_22' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_25' moves 'candidate_path' 0.20s after 'hop_22' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_26' moves 'candidate_path' 0.30s after 'hop_22' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_27' moves 'candidate_path' 0.40s after 'hop_22' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_24' moves 'candidate_path' 0.00s after 'hop_23' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_25' moves 'candidate_path' 0.10s after 'hop_23' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_26' moves 'candidate_path' 0.20s after 'hop_23' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_27' moves 'candidate_path' 0.30s after 'hop_23' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_28' moves 'candidate_path' 0.40s after 'hop_23' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_25' moves 'candidate_path' 0.00s after 'hop_24' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_26' moves 'candidate_path' 0.10s after 'hop_24' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_27' moves 'candidate_path' 0.20s after 'hop_24' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_28' moves 'candidate_path' 0.30s after 'hop_24' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_29' moves 'candidate_path' 0.40s after 'hop_24' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_26' moves 'candidate_path' 0.00s after 'hop_25' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_27' moves 'candidate_path' 0.10s after 'hop_25' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_28' moves 'candidate_path' 0.20s after 'hop_25' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_29' moves 'candidate_path' 0.30s after 'hop_25' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_30' moves 'candidate_path' 0.40s after 'hop_25' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_27' moves 'candidate_path' 0.00s after 'hop_26' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_28' moves 'candidate_path' 0.10s after 'hop_26' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_29' moves 'candidate_path' 0.20s after 'hop_26' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_30' moves 'candidate_path' 0.30s after 'hop_26' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_31' moves 'candidate_path' 0.40s after 'hop_26' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_28' moves 'candidate_path' 0.00s after 'hop_27' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_29' moves 'candidate_path' 0.10s after 'hop_27' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_30' moves 'candidate_path' 0.20s after 'hop_27' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_31' moves 'candidate_path' 0.30s after 'hop_27' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_32' moves 'candidate_path' 0.40s after 'hop_27' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_29' moves 'candidate_path' 0.00s after 'hop_28' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_30' moves 'candidate_path' 0.10s after 'hop_28' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_31' moves 'candidate_path' 0.20s after 'hop_28' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_32' moves 'candidate_path' 0.30s after 'hop_28' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_33' moves 'candidate_path' 0.40s after 'hop_28' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_30' moves 'candidate_path' 0.00s after 'hop_29' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_31' moves 'candidate_path' 0.10s after 'hop_29' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_32' moves 'candidate_path' 0.20s after 'hop_29' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_33' moves 'candidate_path' 0.30s after 'hop_29' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_34' moves 'candidate_path' 0.40s after 'hop_29' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_31' moves 'candidate_path' 0.00s after 'hop_30' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_32' moves 'candidate_path' 0.10s after 'hop_30' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_33' moves 'candidate_path' 0.20s after 'hop_30' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_34' moves 'candidate_path' 0.30s after 'hop_30' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_35' moves 'candidate_path' 0.40s after 'hop_30' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_32' moves 'candidate_path' 0.00s after 'hop_31' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_33' moves 'candidate_path' 0.10s after 'hop_31' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_34' moves 'candidate_path' 0.20s after 'hop_31' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_35' moves 'candidate_path' 0.30s after 'hop_31' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_36' moves 'candidate_path' 0.40s after 'hop_31' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_33' moves 'candidate_path' 0.00s after 'hop_32' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_34' moves 'candidate_path' 0.10s after 'hop_32' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_35' moves 'candidate_path' 0.20s after 'hop_32' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_36' moves 'candidate_path' 0.30s after 'hop_32' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_37' moves 'candidate_path' 0.40s after 'hop_32' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_34' moves 'candidate_path' 0.00s after 'hop_33' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_35' moves 'candidate_path' 0.10s after 'hop_33' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_36' moves 'candidate_path' 0.20s after 'hop_33' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_37' moves 'candidate_path' 0.30s after 'hop_33' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_38' moves 'candidate_path' 0.40s after 'hop_33' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_35' moves 'candidate_path' 0.00s after 'hop_34' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_36' moves 'candidate_path' 0.10s after 'hop_34' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_37' moves 'candidate_path' 0.20s after 'hop_34' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_38' moves 'candidate_path' 0.30s after 'hop_34' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_39' moves 'candidate_path' 0.40s after 'hop_34' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_36' moves 'candidate_path' 0.00s after 'hop_35' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_37' moves 'candidate_path' 0.10s after 'hop_35' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_38' moves 'candidate_path' 0.20s after 'hop_35' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_39' moves 'candidate_path' 0.30s after 'hop_35' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_40' moves 'candidate_path' 0.40s after 'hop_35' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_37' moves 'candidate_path' 0.00s after 'hop_36' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_38' moves 'candidate_path' 0.10s after 'hop_36' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_39' moves 'candidate_path' 0.20s after 'hop_36' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_40' moves 'candidate_path' 0.30s after 'hop_36' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_41' moves 'candidate_path' 0.40s after 'hop_36' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_38' moves 'candidate_path' 0.00s after 'hop_37' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_39' moves 'candidate_path' 0.10s after 'hop_37' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_40' moves 'candidate_path' 0.20s after 'hop_37' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_41' moves 'candidate_path' 0.30s after 'hop_37' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_42' moves 'candidate_path' 0.40s after 'hop_37' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_39' moves 'candidate_path' 0.00s after 'hop_38' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_40' moves 'candidate_path' 0.10s after 'hop_38' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_41' moves 'candidate_path' 0.20s after 'hop_38' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_42' moves 'candidate_path' 0.30s after 'hop_38' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_43' moves 'candidate_path' 0.40s after 'hop_38' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_40' moves 'candidate_path' 0.00s after 'hop_39' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_41' moves 'candidate_path' 0.10s after 'hop_39' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_42' moves 'candidate_path' 0.20s after 'hop_39' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_43' moves 'candidate_path' 0.30s after 'hop_39' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_44' moves 'candidate_path' 0.40s after 'hop_39' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_41' moves 'candidate_path' 0.00s after 'hop_40' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_42' moves 'candidate_path' 0.10s after 'hop_40' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_43' moves 'candidate_path' 0.20s after 'hop_40' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_44' moves 'candidate_path' 0.30s after 'hop_40' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_45' moves 'candidate_path' 0.40s after 'hop_40' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_42' moves 'candidate_path' 0.00s after 'hop_41' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_43' moves 'candidate_path' 0.10s after 'hop_41' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_44' moves 'candidate_path' 0.20s after 'hop_41' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_45' moves 'candidate_path' 0.30s after 'hop_41' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_46' moves 'candidate_path' 0.40s after 'hop_41' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_43' moves 'candidate_path' 0.00s after 'hop_42' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_44' moves 'candidate_path' 0.10s after 'hop_42' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_45' moves 'candidate_path' 0.20s after 'hop_42' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_46' moves 'candidate_path' 0.30s after 'hop_42' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_47' moves 'candidate_path' 0.40s after 'hop_42' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_44' moves 'candidate_path' 0.00s after 'hop_43' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_45' moves 'candidate_path' 0.10s after 'hop_43' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_46' moves 'candidate_path' 0.20s after 'hop_43' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_47' moves 'candidate_path' 0.30s after 'hop_43' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_48' moves 'candidate_path' 0.40s after 'hop_43' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_45' moves 'candidate_path' 0.00s after 'hop_44' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_46' moves 'candidate_path' 0.10s after 'hop_44' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_47' moves 'candidate_path' 0.20s after 'hop_44' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_48' moves 'candidate_path' 0.30s after 'hop_44' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_49' moves 'candidate_path' 0.40s after 'hop_44' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_46' moves 'candidate_path' 0.00s after 'hop_45' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_47' moves 'candidate_path' 0.10s after 'hop_45' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_48' moves 'candidate_path' 0.20s after 'hop_45' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_49' moves 'candidate_path' 0.30s after 'hop_45' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_50' moves 'candidate_path' 0.40s after 'hop_45' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_47' moves 'candidate_path' 0.00s after 'hop_46' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_48' moves 'candidate_path' 0.10s after 'hop_46' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_49' moves 'candidate_path' 0.20s after 'hop_46' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_50' moves 'candidate_path' 0.30s after 'hop_46' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_51' moves 'candidate_path' 0.40s after 'hop_46' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_48' moves 'candidate_path' 0.00s after 'hop_47' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_49' moves 'candidate_path' 0.10s after 'hop_47' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_50' moves 'candidate_path' 0.20s after 'hop_47' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_51' moves 'candidate_path' 0.30s after 'hop_47' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_52' moves 'candidate_path' 0.40s after 'hop_47' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_49' moves 'candidate_path' 0.00s after 'hop_48' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_50' moves 'candidate_path' 0.10s after 'hop_48' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_51' moves 'candidate_path' 0.20s after 'hop_48' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_52' moves 'candidate_path' 0.30s after 'hop_48' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_50' moves 'candidate_path' 0.00s after 'hop_49' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_51' moves 'candidate_path' 0.10s after 'hop_49' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_52' moves 'candidate_path' 0.20s after 'hop_49' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_51' moves 'candidate_path' 0.00s after 'hop_50' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_52' moves 'candidate_path' 0.10s after 'hop_50' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_52' moves 'candidate_path' 0.00s after 'hop_51' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_53' moves 'candidate_path' 0.05s after 'kept_out' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_54' moves 'candidate_path' 0.40s after 'kept_out' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_54' moves 'candidate_path' 0.00s after 'hop_53' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_55' moves 'candidate_path' 0.35s after 'hop_53' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_55' moves 'candidate_path' 0.00s after 'hop_54' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_56' moves 'candidate_path' 0.35s after 'hop_54' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_56' moves 'candidate_path' 0.00s after 'hop_55' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_57' moves 'candidate_path' 0.35s after 'hop_55' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_57' moves 'candidate_path' 0.00s after 'hop_56' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_58' moves 'candidate_path' 0.35s after 'hop_56' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_58' moves 'candidate_path' 0.00s after 'hop_57' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_59' moves 'candidate_path' 0.35s after 'hop_57' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_59' moves 'candidate_path' 0.00s after 'hop_58' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_60' moves 'candidate_path' 0.35s after 'hop_58' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_60' moves 'candidate_path' 0.00s after 'hop_59' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_61' moves 'candidate_path' 0.35s after 'hop_59' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_61' moves 'candidate_path' 0.00s after 'hop_60' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_62' moves 'candidate_path' 0.35s after 'hop_60' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_62' moves 'candidate_path' 0.00s after 'hop_61' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_63' moves 'candidate_path' 0.35s after 'hop_61' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_63' moves 'candidate_path' 0.00s after 'hop_62' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - scene 'fit' names pattern 'linked_views' but uses none of its components (function_plot, surface_plot, 
+    function_image)

@@ -1,0 +1,62 @@
+schema_version: '1.0'
+proposal:
+  schema_version: '1.0'
+  id: prop_snapshot_counts
+  kind: revise_storyboard
+  created_at: '2026-11-13T16:40:00+00:00'
+  author: agent:clip-fields_to_map
+  summary: Say in the descriptions of first_fits and fits_arrive exactly how many voxels each shows, as the 
+    checkpoints drew them.
+  rationale: "Reviewing the checkpoints against their descriptions: with lag_ratio 0.012 over 690 voxels each voxel
+    fades in over 10.8 % of the 10.75 s sequence, so at 2.5 s 36 voxels are at full size and 83 more are fading
+    in, and at 6.2 s 302 are at full size and 83 more are fading in. The first 385 fitted centres all lie within
+    3.3 deg of fixation, so at 6.2 s the filled part of the sheet is still in the first half of the eccentricity
+    ramp; the bands toward the far end form later. The descriptions now say this instead of 'about half' and 'bands
+    already run'."
+  based_on_revision: working
+  in_response_to: []
+  uncertainties: []
+  claims:
+    - statement: The first 119 voxels in the order column have eccentricity below 1.4 deg, the first 385 below
+        3.3 deg.
+      source_id: voxels
+      locator: 'columns order, eccentricity_deg (max of rows 0-118: 1.391; rows 0-384: 3.262)'
+      basis: source
+  targets:
+    - file: storyboard.yaml
+      patch:
+        - op: replace
+          path: /scenes/0/snapshots/1/description
+          value: "The first fits: 36 voxels at full size along the sheet's left edge and 83 more still growing and
+            fading in, each square with its dot in the same colour; all lie within 1.4 deg of fixation, so the dots
+            sit at fixation and the squares take the first colour of the eccentricity ramp."
+        - op: replace
+          path: /scenes/0/snapshots/2/description
+          value: 'Fits under way, in order across the sheet: 302 voxels at full size and 83 more fading in fill
+            the sheet from its left edge to about its middle; their centres all lie within 3.3 deg of fixation,
+            so the dots crowd the field around fixation and the filled part of the sheet runs through the first
+            half of the eccentricity ramp, column by column.'
+  touches_science: false
+applied_at: '2026-11-13T15:10:47+00:00'
+applied_to_revision: working
+diffs:
+  storyboard.yaml: "--- a/storyboard.yaml\n+++ b/storyboard.yaml\n@@ -155,13 +155,15 @@\n           No dot and no
+    square yet.\"\n       - id: first_fits\n         at_seconds: 2.5\n-        description: \"The first fits: about
+    35 voxels at full size at the sheet's left edge, the next 80 or so still\n-          growing and fading in,
+    each square with its dot in the field in the same colour of eccentricity.\"\n+        description: \"The first
+    fits: 36 voxels at full size along the sheet's left edge and 83 more still growing\n+          and fading in,
+    each square with its dot in the same colour; all lie within 1.4 deg of fixation, so the\n+          dots sit
+    at fixation and the squares take the first colour of the eccentricity ramp.\"\n       - id: fits_arrive\n  \
+    \       at_seconds: 6.2\n-        description: 'Half of the 690 voxels fitted, in order across the sheet: the
+    left half of the sheet is filled,\n-          the field holds their dots, and bands of eccentricity colour already
+    run across the filled part of the\n-          sheet.'\n+        description: 'Fits under way, in order across
+    the sheet: 302 voxels at full size and 83 more fading in fill\n+          the sheet from its left edge to about
+    its middle; their centres all lie within 3.3 deg of fixation, so\n+          the dots crowd the field around
+    fixation and the filled part of the sheet runs through the first half\n+          of the eccentricity ramp,
+    column by column.'\n       - id: eccentricity\n         at_seconds: 12.9\n         stop: true"
+scientific_review_required: false
+validation_warnings:
+  - "action 'fits_run' moves at constant speed from its first frame to its last (easing: linear); the style asks
+    for slow in, slow out: omit `easing` to use `smooth`, or keep linear only for a motion that should read as mechanical"
+  - scene 'map' names pattern 'linked_views' but uses none of its components (function_plot, surface_plot, 
+    function_image)

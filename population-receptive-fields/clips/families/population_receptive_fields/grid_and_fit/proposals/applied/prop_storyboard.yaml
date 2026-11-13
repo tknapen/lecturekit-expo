@@ -1,0 +1,1443 @@
+schema_version: '1.0'
+proposal:
+  schema_version: '1.0'
+  id: prop_storyboard
+  kind: create_storyboard
+  created_at: '2026-11-13T16:00:00+00:00'
+  author: agent:clip-grid_and_fit
+  summary: 'Storyboard of the grid search and refinement of a pRF fit: one hop action per candidate of candidates.csv
+    driving a custom parametric object, over a registered scientific_plot of the measured voxel.'
+  rationale: "The brief and the original scene: four slow candidates, 48 fast ones with the best so far kept as
+    a dashed outline, the best grid point (R squared 0.84), the heading change, eleven refinement steps to the optimum
+    (R squared 0.86), the fit line. The measured trace, its axes, the headings and the fit line are registered kinds
+    (scientific_plot, text_caption) with registered actions (reveal, fade_object); what the registry cannot draw
+    (the field in degrees, a label at the plot's top left, the candidate with its prediction, readouts and kept
+    outline) is kind: custom in code/grid_fit.py, and the motion is the parametric route: the candidate_path object
+    is a ParametricComponent swept by vary_parameter, one action per hop."
+  based_on_revision: working
+  in_response_to: []
+  uncertainties:
+    - The time column t_s is the scan time truncated to whole seconds (floor of 0.9 s times the sample index),
+      so 34 pairs of samples share a second; the traces are drawn against t_s as given, which moves a sample 
+      by at most 0.9 s (under 3 px at 1280 wide). The citation says '340 s' for 340 samples spanning 0 to 305 
+      s.
+    - Between two candidates, while a hop runs, centre, sigma, the readouts and the prediction are 
+      interpolated linearly between the two rows, as the original scene's trackers did; only the rest frames 
+      are exact rows.
+    - "Frame 0 is the page colour: manim8 reveals every object at a scene's start over the style's reveal time (0.85
+      s), so the layout of the hard milestone at 0 s is complete at 0.85 s."
+  claims:
+    - statement: Each candidate shown is a row of candidates.csv in seq order (4 slow, 48 fast, the grid's 
+        best, 11 refinement steps), drawn at its x_deg, y_deg and sigma_deg with its r2 to two decimals.
+      source_id: candidates
+      locator: columns seq, phase, x_deg, y_deg, sigma_deg, r2; rows 0 to 63
+      basis: source
+    - statement: The prediction of candidate n is column p<n> of timecourses.csv, on the time axis t_s.
+      source_id: timecourses
+      locator: columns t_s and p00 to p63
+      basis: source
+    - statement: The time course is one measured voxel of prfmodel's example dataset 7t-aot-visual, sub-003, 
+        in per cent signal change; it is labelled 'measured voxel', the prediction is not labelled.
+      source_id: timecourses
+      locator: column measured; citation
+      basis: source
+    - statement: 'The fit ends at x 2.27 deg, y 0.99 deg, sigma 0.85 deg, R squared 0.86 (row 63: 2.27, 0.995, 0.847,
+        0.862; y written as 0.99, as the constraint final_values says).'
+      source_id: candidates
+      locator: row seq 63
+      basis: source
+    - statement: Layout, positions, line weights and the order and pace of events follow the original scene.
+      source_id: original_scene
+      locator: FitSearch.construct
+      basis: source
+  targets:
+    - file: storyboard.yaml
+      document:
+        schema_version: '1.0'
+        project_id: grid_and_fit
+        based_on_animation_revision: working
+        scenes:
+          - id: fit
+            start_seconds: 0
+            end_seconds: 20.0
+            purpose: "One candidate position drives two pictures: the candidate field in the visual field and its
+              predicted time course over the measured voxel, with x, y, sigma and R squared read out. Four slow
+              candidates, 48 fast ones with the best so far kept as a dashed outline, the best grid point, then
+              eleven refinement steps to the optimum and the line with the fitted values. The candidate_path object's
+              parameters candidate and retire_kept are declared as zero-window smooth transforms of its binding,
+              which leave the table unchanged (manim8 declares a custom object's parameters only there)."
+            patterns:
+              - linked_views
+            objects:
+              - id: visual_field
+                kind: custom
+                params:
+                  builder: grid_fit:visual_field
+                  arguments:
+                    radius_deg: 4
+                    scale_bar_deg: 2
+                    roles:
+                      outline: hairline
+                      fixation: muted
+                      scale_bar: muted
+                    weights_px_at_1080p:
+                      outline: 3.6
+                      fixation: 3.1
+                      scale_bar: 3.6
+              - id: bold_plot
+                kind: scientific_plot
+                style_role: foreground
+                data:
+                  source: timecourses
+                  encoding:
+                    x: t_s
+                    y: measured
+                params:
+                  x_label: time (s)
+                  y_label: BOLD (% signal change)
+                  x_range:
+                    - 0
+                    - 306
+                  y_range:
+                    - -5
+                    - 10
+                  show_points: false
+                  show_legend: false
+                  anchor: center_right
+                  width_fraction: 0.595
+                  height_fraction: 0.529
+              - id: voxel_label
+                kind: custom
+                style_role: foreground
+                params:
+                  builder: grid_fit:plot_label
+                  arguments:
+                    plot: bold_plot
+                    text: measured voxel
+                    text_role: annotation
+              - id: heading_grid
+                kind: text_caption
+                style_role: muted
+                params:
+                  text: grid search
+                  role: body
+                  anchor: top_left
+              - id: heading_refine
+                kind: text_caption
+                style_role: muted
+                reveal_at_seconds: 11.8
+                params:
+                  text: refinement
+                  role: body
+                  anchor: top_left
+              - id: candidate_path
+                kind: custom
+                data:
+                  source: candidates
+                  encoding:
+                    x: seq
+                    y: r2
+                  transforms:
+                    - op: smooth
+                      column: seq
+                      window:
+                        parameter: candidate
+                        default: 0
+                    - op: smooth
+                      column: seq
+                      window:
+                        parameter: retire_kept
+                        default: 0
+                params:
+                  builder: grid_fit:candidate_path
+                  arguments:
+                    field: visual_field
+                    plot: bold_plot
+                    columns:
+                      x: x_deg
+                      y: y_deg
+                      sigma: sigma_deg
+                      r2: r2
+                      phase: phase
+                    predictions:
+                      source: timecourses
+                      time: t_s
+                      prefix: p
+                    kept_phases:
+                      - slow
+                      - fast
+                      - grid_best
+                    roles:
+                      candidate: primary_signal
+                      kept: muted
+                    text_roles:
+                      params: annotation
+                      r2: body
+                    weights_px_at_1080p:
+                      candidate: 4.8
+                      kept: 2.4
+                      prediction: 4.2
+                    dot_radius_px_at_1080p: 7
+                    dash_px_at_1080p: 9
+              - id: fit_line
+                kind: text_caption
+                style_role: foreground
+                reveal_at_seconds: 17.0
+                params:
+                  text: 'fit: x 2.27°, y 0.99°, σ 0.85°, R² 0.86'
+                  role: body
+                  below: bold_plot
+                  gap_px_at_1080p: 40
+            actions:
+              - id: hop_01
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 1
+                at_seconds: 1.4
+                duration_seconds: 0.9
+                show_value: false
+              - id: hop_02
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 2
+                at_seconds: 2.8
+                duration_seconds: 0.9
+                show_value: false
+              - id: hop_03
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 3
+                at_seconds: 4.2
+                duration_seconds: 0.9
+                show_value: false
+              - id: hop_04
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 4
+                at_seconds: 5.6
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_05
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 5
+                at_seconds: 5.7
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_06
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 6
+                at_seconds: 5.8
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_07
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 7
+                at_seconds: 5.9
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_08
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 8
+                at_seconds: 6.0
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_09
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 9
+                at_seconds: 6.1
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_10
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 10
+                at_seconds: 6.2
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_11
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 11
+                at_seconds: 6.3
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_12
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 12
+                at_seconds: 6.4
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_13
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 13
+                at_seconds: 6.5
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_14
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 14
+                at_seconds: 6.6
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_15
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 15
+                at_seconds: 6.7
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_16
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 16
+                at_seconds: 6.8
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_17
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 17
+                at_seconds: 6.9
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_18
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 18
+                at_seconds: 7.0
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_19
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 19
+                at_seconds: 7.1
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_20
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 20
+                at_seconds: 7.2
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_21
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 21
+                at_seconds: 7.3
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_22
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 22
+                at_seconds: 7.4
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_23
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 23
+                at_seconds: 7.5
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_24
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 24
+                at_seconds: 7.6
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_25
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 25
+                at_seconds: 7.7
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_26
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 26
+                at_seconds: 7.8
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_27
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 27
+                at_seconds: 7.9
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_28
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 28
+                at_seconds: 8.0
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_29
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 29
+                at_seconds: 8.1
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_30
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 30
+                at_seconds: 8.2
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_31
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 31
+                at_seconds: 8.3
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_32
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 32
+                at_seconds: 8.4
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_33
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 33
+                at_seconds: 8.5
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_34
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 34
+                at_seconds: 8.6
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_35
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 35
+                at_seconds: 8.7
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_36
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 36
+                at_seconds: 8.8
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_37
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 37
+                at_seconds: 8.9
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_38
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 38
+                at_seconds: 9.0
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_39
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 39
+                at_seconds: 9.1
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_40
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 40
+                at_seconds: 9.2
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_41
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 41
+                at_seconds: 9.3
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_42
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 42
+                at_seconds: 9.4
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_43
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 43
+                at_seconds: 9.5
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_44
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 44
+                at_seconds: 9.6
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_45
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 45
+                at_seconds: 9.7
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_46
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 46
+                at_seconds: 9.8
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_47
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 47
+                at_seconds: 9.9
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_48
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 48
+                at_seconds: 10.0
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_49
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 49
+                at_seconds: 10.1
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_50
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 50
+                at_seconds: 10.2
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_51
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 51
+                at_seconds: 10.3
+                duration_seconds: 0.1
+                show_value: false
+              - id: hop_52
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 52
+                at_seconds: 10.4
+                duration_seconds: 0.8
+                show_value: false
+              - id: heading_out
+                kind: fade_object
+                target: heading_grid
+                visible: false
+                at_seconds: 11.8
+                duration_seconds: 0.85
+              - id: kept_out
+                kind: vary_parameter
+                target: candidate_path
+                parameter: retire_kept
+                to: 1
+                at_seconds: 11.8
+                duration_seconds: 0.85
+                show_value: false
+              - id: hop_53
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 53
+                at_seconds: 12.7
+                duration_seconds: 0.35
+                show_value: false
+              - id: hop_54
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 54
+                at_seconds: 13.05
+                duration_seconds: 0.35
+                show_value: false
+              - id: hop_55
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 55
+                at_seconds: 13.4
+                duration_seconds: 0.35
+                show_value: false
+              - id: hop_56
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 56
+                at_seconds: 13.75
+                duration_seconds: 0.35
+                show_value: false
+              - id: hop_57
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 57
+                at_seconds: 14.1
+                duration_seconds: 0.35
+                show_value: false
+              - id: hop_58
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 58
+                at_seconds: 14.45
+                duration_seconds: 0.35
+                show_value: false
+              - id: hop_59
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 59
+                at_seconds: 14.8
+                duration_seconds: 0.35
+                show_value: false
+              - id: hop_60
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 60
+                at_seconds: 15.15
+                duration_seconds: 0.35
+                show_value: false
+              - id: hop_61
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 61
+                at_seconds: 15.5
+                duration_seconds: 0.35
+                show_value: false
+              - id: hop_62
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 62
+                at_seconds: 15.85
+                duration_seconds: 0.35
+                show_value: false
+              - id: hop_63
+                kind: vary_parameter
+                target: candidate_path
+                parameter: candidate
+                to: 63
+                at_seconds: 16.2
+                duration_seconds: 0.35
+                show_value: false
+            snapshots:
+              - id: layout
+                at_seconds: 1.2
+                description: "The layout, fully revealed (every object fades in over the style's reveal time from
+                  0 s): left, the field out to 4 deg with fixation, the 2 deg scale bar and the heading 'grid search';
+                  right, the measured voxel's time course on 'time (s)' and 'BOLD (% signal change)', labelled 'measured
+                  voxel'. The first candidate (seq 0, x -1.00, y -3.00, sigma 2.00 deg, R squared 0.00) with its
+                  prediction over the data."
+              - id: slow_candidates
+                at_seconds: 5.4
+                description: Rest after the fourth slow candidate (seq 3, x +1.00, y +0.00, sigma 0.50 deg, R 
+                  squared 0.33); it is also the best so far, so its dashed outline lies under the candidate's 
+                  circle.
+              - id: fast_grid
+                at_seconds: 6.3
+                description: In the fast phase, the end of the hop to seq 10 (x -2.00, y -2.00, sigma 2.00 
+                  deg, R squared 0.00); the dashed outline keeps the best so far, seq 5 (x +3.00, y -2.00, 
+                  sigma 2.00 deg, R squared 0.36).
+              - id: grid_best
+                at_seconds: 11.5
+                description: Rest on the best grid point (seq 52, x +2.00, y +1.00, sigma 1.00 deg, R squared 
+                  0.84); the dashed outline coincides with it.
+              - id: refinement
+                at_seconds: 12.7
+                description: The heading reads 'refinement' and the dashed outline is gone; the candidate is 
+                  still on the best grid point, the moment before the first refinement step.
+              - id: optimum
+                at_seconds: 16.8
+                description: After eleven refinement steps, the optimum (seq 63, x +2.27, y +0.99, sigma 0.85 
+                  deg, R squared 0.86); the prediction lies on the data. No fit line yet.
+              - id: result
+                at_seconds: 19.9
+                description: "The end state and study still: the optimum with its prediction over the measured voxel,
+                  the readouts x +2.27, y +0.99, sigma 0.85 deg and R squared 0.86, the heading 'refinement' and,
+                  under the time course, 'fit: x 2.27°, y 0.99°, σ 0.85°, R² 0.86'."
+  touches_science: true
+applied_at: '2026-11-13T15:03:17+00:00'
+applied_to_revision: working
+diffs:
+  storyboard.yaml: "--- a/storyboard.yaml\n+++ b/storyboard.yaml\n@@ -0,0 +1,688 @@\n+schema_version: '1.0'\n+project_id:
+    grid_and_fit\n+based_on_animation_revision: working\n+scenes:\n+  - id: fit\n+    start_seconds: 0\n+    end_seconds:
+    20.0\n+    purpose: \"One candidate position drives two pictures: the candidate field in the visual field and
+    its predicted\n+      time course over the measured voxel, with x, y, sigma and R squared read out. Four slow
+    candidates, 48 fast\n+      ones with the best so far kept as a dashed outline, the best grid point, then eleven
+    refinement steps to the\n+      optimum and the line with the fitted values. The candidate_path object's parameters
+    candidate and retire_kept\n+      are declared as zero-window smooth transforms of its binding, which leave
+    the table unchanged (manim8 declares\n+      a custom object's parameters only there).\"\n+    patterns:\n+\
+    \      - linked_views\n+    objects:\n+      - id: visual_field\n+        kind: custom\n+        params:\n+\
+    \          builder: grid_fit:visual_field\n+          arguments:\n+            radius_deg: 4\n+            scale_bar_deg:
+    2\n+            roles:\n+              outline: hairline\n+              fixation: muted\n+              scale_bar:
+    muted\n+            weights_px_at_1080p:\n+              outline: 3.6\n+              fixation: 3.1\n+     \
+    \         scale_bar: 3.6\n+      - id: bold_plot\n+        kind: scientific_plot\n+        style_role: foreground\n\
+    +        data:\n+          source: timecourses\n+          encoding:\n+            x: t_s\n+            y: measured\n\
+    +        params:\n+          x_label: time (s)\n+          y_label: BOLD (% signal change)\n+          x_range:\n\
+    +            - 0\n+            - 306\n+          y_range:\n+            - -5\n+            - 10\n+         \
+    \ show_points: false\n+          show_legend: false\n+          anchor: center_right\n+          width_fraction:
+    0.595\n+          height_fraction: 0.529\n+      - id: voxel_label\n+        kind: custom\n+        style_role:
+    foreground\n+        params:\n+          builder: grid_fit:plot_label\n+          arguments:\n+            plot:
+    bold_plot\n+            text: measured voxel\n+            text_role: annotation\n+      - id: heading_grid\n\
+    +        kind: text_caption\n+        style_role: muted\n+        params:\n+          text: grid search\n+ \
+    \         role: body\n+          anchor: top_left\n+      - id: heading_refine\n+        kind: text_caption\n\
+    +        style_role: muted\n+        reveal_at_seconds: 11.8\n+        params:\n+          text: refinement\n\
+    +          role: body\n+          anchor: top_left\n+      - id: candidate_path\n+        kind: custom\n+  \
+    \      data:\n+          source: candidates\n+          encoding:\n+            x: seq\n+            y: r2\n\
+    +          transforms:\n+            - op: smooth\n+              column: seq\n+              window:\n+   \
+    \             parameter: candidate\n+                default: 0\n+            - op: smooth\n+              column:
+    seq\n+              window:\n+                parameter: retire_kept\n+                default: 0\n+       \
+    \ params:\n+          builder: grid_fit:candidate_path\n+          arguments:\n+            field: visual_field\n\
+    +            plot: bold_plot\n+            columns:\n+              x: x_deg\n+              y: y_deg\n+   \
+    \           sigma: sigma_deg\n+              r2: r2\n+              phase: phase\n+            predictions:\n\
+    +              source: timecourses\n+              time: t_s\n+              prefix: p\n+            kept_phases:\n\
+    +              - slow\n+              - fast\n+              - grid_best\n+            roles:\n+           \
+    \   candidate: primary_signal\n+              kept: muted\n+            text_roles:\n+              params:
+    annotation\n+              r2: body\n+            weights_px_at_1080p:\n+              candidate: 4.8\n+   \
+    \           kept: 2.4\n+              prediction: 4.2\n+            dot_radius_px_at_1080p: 7\n+           \
+    \ dash_px_at_1080p: 9\n+      - id: fit_line\n+        kind: text_caption\n+        style_role: foreground\n\
+    +        reveal_at_seconds: 17.0\n+        params:\n+          text: 'fit: x 2.27°, y 0.99°, σ 0.85°, R² 0.86'\n\
+    +          role: body\n+          below: bold_plot\n+          gap_px_at_1080p: 40\n+    actions:\n+      -
+    id: hop_01\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 1\n+        at_seconds: 1.4\n+        duration_seconds: 0.9\n+        show_value: false\n+    \
+    \  - id: hop_02\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 2\n+        at_seconds: 2.8\n+        duration_seconds: 0.9\n+        show_value: false\n+    \
+    \  - id: hop_03\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 3\n+        at_seconds: 4.2\n+        duration_seconds: 0.9\n+        show_value: false\n+    \
+    \  - id: hop_04\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 4\n+        at_seconds: 5.6\n+        duration_seconds: 0.1\n+        show_value: false\n+    \
+    \  - id: hop_05\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 5\n+        at_seconds: 5.7\n+        duration_seconds: 0.1\n+        show_value: false\n+    \
+    \  - id: hop_06\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 6\n+        at_seconds: 5.8\n+        duration_seconds: 0.1\n+        show_value: false\n+    \
+    \  - id: hop_07\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 7\n+        at_seconds: 5.9\n+        duration_seconds: 0.1\n+        show_value: false\n+    \
+    \  - id: hop_08\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 8\n+        at_seconds: 6.0\n+        duration_seconds: 0.1\n+        show_value: false\n+    \
+    \  - id: hop_09\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 9\n+        at_seconds: 6.1\n+        duration_seconds: 0.1\n+        show_value: false\n+    \
+    \  - id: hop_10\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 10\n+        at_seconds: 6.2\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_11\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 11\n+        at_seconds: 6.3\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_12\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 12\n+        at_seconds: 6.4\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_13\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 13\n+        at_seconds: 6.5\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_14\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 14\n+        at_seconds: 6.6\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_15\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 15\n+        at_seconds: 6.7\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_16\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 16\n+        at_seconds: 6.8\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_17\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 17\n+        at_seconds: 6.9\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_18\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 18\n+        at_seconds: 7.0\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_19\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 19\n+        at_seconds: 7.1\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_20\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 20\n+        at_seconds: 7.2\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_21\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 21\n+        at_seconds: 7.3\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_22\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 22\n+        at_seconds: 7.4\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_23\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 23\n+        at_seconds: 7.5\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_24\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 24\n+        at_seconds: 7.6\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_25\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 25\n+        at_seconds: 7.7\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_26\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 26\n+        at_seconds: 7.8\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_27\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 27\n+        at_seconds: 7.9\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_28\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 28\n+        at_seconds: 8.0\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_29\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 29\n+        at_seconds: 8.1\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_30\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 30\n+        at_seconds: 8.2\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_31\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 31\n+        at_seconds: 8.3\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_32\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 32\n+        at_seconds: 8.4\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_33\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 33\n+        at_seconds: 8.5\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_34\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 34\n+        at_seconds: 8.6\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_35\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 35\n+        at_seconds: 8.7\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_36\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 36\n+        at_seconds: 8.8\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_37\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 37\n+        at_seconds: 8.9\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_38\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 38\n+        at_seconds: 9.0\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_39\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 39\n+        at_seconds: 9.1\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_40\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 40\n+        at_seconds: 9.2\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_41\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 41\n+        at_seconds: 9.3\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_42\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 42\n+        at_seconds: 9.4\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_43\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 43\n+        at_seconds: 9.5\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_44\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 44\n+        at_seconds: 9.6\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_45\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 45\n+        at_seconds: 9.7\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_46\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 46\n+        at_seconds: 9.8\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_47\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 47\n+        at_seconds: 9.9\n+        duration_seconds: 0.1\n+        show_value: false\n+   \
+    \   - id: hop_48\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 48\n+        at_seconds: 10.0\n+        duration_seconds: 0.1\n+        show_value: false\n+  \
+    \    - id: hop_49\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 49\n+        at_seconds: 10.1\n+        duration_seconds: 0.1\n+        show_value: false\n+  \
+    \    - id: hop_50\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 50\n+        at_seconds: 10.2\n+        duration_seconds: 0.1\n+        show_value: false\n+  \
+    \    - id: hop_51\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 51\n+        at_seconds: 10.3\n+        duration_seconds: 0.1\n+        show_value: false\n+  \
+    \    - id: hop_52\n+        kind: vary_parameter\n+        target: candidate_path\n+        parameter: candidate\n\
+    +        to: 52\n+        at_seconds: 10.4\n+        duration_seconds: 0.8\n+        show_value: false\n+  \
+    \    - id: heading_out\n+        kind: fade_object\n+        target: heading_grid\n+        visible: false\n\
+    +        at_seconds: 11.8\n+        duration_seconds: 0.85\n+      - id: kept_out\n+        kind: vary_parameter\n\
+    +        target: candidate_path\n+        parameter: retire_kept\n+        to: 1\n+        at_seconds: 11.8\n\
+    +        duration_seconds: 0.85\n+        show_value: false\n+      - id: hop_53\n+        kind: vary_parameter\n\
+    +        target: candidate_path\n+        parameter: candidate\n+        to: 53\n+        at_seconds: 12.7\n\
+    +        duration_seconds: 0.35\n+        show_value: false\n+      - id: hop_54\n+        kind: vary_parameter\n\
+    +        target: candidate_path\n+        parameter: candidate\n+        to: 54\n+        at_seconds: 13.05\n\
+    +        duration_seconds: 0.35\n+        show_value: false\n+      - id: hop_55\n+        kind: vary_parameter\n\
+    +        target: candidate_path\n+        parameter: candidate\n+        to: 55\n+        at_seconds: 13.4\n\
+    +        duration_seconds: 0.35\n+        show_value: false\n+      - id: hop_56\n+        kind: vary_parameter\n\
+    +        target: candidate_path\n+        parameter: candidate\n+        to: 56\n+        at_seconds: 13.75\n\
+    +        duration_seconds: 0.35\n+        show_value: false\n+      - id: hop_57\n+        kind: vary_parameter\n\
+    +        target: candidate_path\n+        parameter: candidate\n+        to: 57\n+        at_seconds: 14.1\n\
+    +        duration_seconds: 0.35\n+        show_value: false\n+      - id: hop_58\n+        kind: vary_parameter\n\
+    +        target: candidate_path\n+        parameter: candidate\n+        to: 58\n+        at_seconds: 14.45\n\
+    +        duration_seconds: 0.35\n+        show_value: false\n+      - id: hop_59\n+        kind: vary_parameter\n\
+    +        target: candidate_path\n+        parameter: candidate\n+        to: 59\n+        at_seconds: 14.8\n\
+    +        duration_seconds: 0.35\n+        show_value: false\n+      - id: hop_60\n+        kind: vary_parameter\n\
+    +        target: candidate_path\n+        parameter: candidate\n+        to: 60\n+        at_seconds: 15.15\n\
+    +        duration_seconds: 0.35\n+        show_value: false\n+      - id: hop_61\n+        kind: vary_parameter\n\
+    +        target: candidate_path\n+        parameter: candidate\n+        to: 61\n+        at_seconds: 15.5\n\
+    +        duration_seconds: 0.35\n+        show_value: false\n+      - id: hop_62\n+        kind: vary_parameter\n\
+    +        target: candidate_path\n+        parameter: candidate\n+        to: 62\n+        at_seconds: 15.85\n\
+    +        duration_seconds: 0.35\n+        show_value: false\n+      - id: hop_63\n+        kind: vary_parameter\n\
+    +        target: candidate_path\n+        parameter: candidate\n+        to: 63\n+        at_seconds: 16.2\n\
+    +        duration_seconds: 0.35\n+        show_value: false\n+    snapshots:\n+      - id: layout\n+       \
+    \ at_seconds: 1.2\n+        description: \"The layout, fully revealed (every object fades in over the style's
+    reveal time from 0 s):\n+          left, the field out to 4 deg with fixation, the 2 deg scale bar and the heading
+    'grid search'; right,\n+          the measured voxel's time course on 'time (s)' and 'BOLD (% signal change)',
+    labelled 'measured voxel'.\n+          The first candidate (seq 0, x -1.00, y -3.00, sigma 2.00 deg, R squared
+    0.00) with its prediction over\n+          the data.\"\n+      - id: slow_candidates\n+        at_seconds: 5.4\n\
+    +        description: Rest after the fourth slow candidate (seq 3, x +1.00, y +0.00, sigma 0.50 deg, R squared\
+    \ \n+          0.33); it is also the best so far, so its dashed outline lies under the candidate's circle.\n\
+    +      - id: fast_grid\n+        at_seconds: 6.3\n+        description: In the fast phase, the end of the hop
+    to seq 10 (x -2.00, y -2.00, sigma 2.00 deg, R \n+          squared 0.00); the dashed outline keeps the best
+    so far, seq 5 (x +3.00, y -2.00, sigma 2.00 deg, R \n+          squared 0.36).\n+      - id: grid_best\n+  \
+    \      at_seconds: 11.5\n+        description: Rest on the best grid point (seq 52, x +2.00, y +1.00, sigma
+    1.00 deg, R squared 0.84); \n+          the dashed outline coincides with it.\n+      - id: refinement\n+  \
+    \      at_seconds: 12.7\n+        description: The heading reads 'refinement' and the dashed outline is gone;
+    the candidate is still on \n+          the best grid point, the moment before the first refinement step.\n+\
+    \      - id: optimum\n+        at_seconds: 16.8\n+        description: After eleven refinement steps, the optimum
+    (seq 63, x +2.27, y +0.99, sigma 0.85 deg, R \n+          squared 0.86); the prediction lies on the data. No
+    fit line yet.\n+      - id: result\n+        at_seconds: 19.9\n+        description: \"The end state and study
+    still: the optimum with its prediction over the measured voxel, the\n+          readouts x +2.27, y +0.99, sigma
+    0.85 deg and R squared 0.86, the heading 'refinement' and, under the\n+          time course, 'fit: x 2.27°,
+    y 0.99°, σ 0.85°, R² 0.86'.\""
+scientific_review_required: true
+validation_warnings:
+  - "action 'hop_05' moves 'candidate_path' 0.00s after 'hop_04' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_06' moves 'candidate_path' 0.10s after 'hop_04' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_07' moves 'candidate_path' 0.20s after 'hop_04' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_08' moves 'candidate_path' 0.30s after 'hop_04' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_09' moves 'candidate_path' 0.40s after 'hop_04' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_06' moves 'candidate_path' 0.00s after 'hop_05' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_07' moves 'candidate_path' 0.10s after 'hop_05' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_08' moves 'candidate_path' 0.20s after 'hop_05' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_09' moves 'candidate_path' 0.30s after 'hop_05' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_10' moves 'candidate_path' 0.40s after 'hop_05' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_07' moves 'candidate_path' 0.00s after 'hop_06' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_08' moves 'candidate_path' 0.10s after 'hop_06' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_09' moves 'candidate_path' 0.20s after 'hop_06' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_10' moves 'candidate_path' 0.30s after 'hop_06' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_11' moves 'candidate_path' 0.40s after 'hop_06' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_08' moves 'candidate_path' 0.00s after 'hop_07' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_09' moves 'candidate_path' 0.10s after 'hop_07' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_10' moves 'candidate_path' 0.20s after 'hop_07' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_11' moves 'candidate_path' 0.30s after 'hop_07' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_12' moves 'candidate_path' 0.40s after 'hop_07' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_09' moves 'candidate_path' 0.00s after 'hop_08' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_10' moves 'candidate_path' 0.10s after 'hop_08' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_11' moves 'candidate_path' 0.20s after 'hop_08' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_12' moves 'candidate_path' 0.30s after 'hop_08' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_13' moves 'candidate_path' 0.40s after 'hop_08' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_10' moves 'candidate_path' 0.00s after 'hop_09' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_11' moves 'candidate_path' 0.10s after 'hop_09' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_12' moves 'candidate_path' 0.20s after 'hop_09' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_13' moves 'candidate_path' 0.30s after 'hop_09' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_14' moves 'candidate_path' 0.40s after 'hop_09' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_11' moves 'candidate_path' 0.00s after 'hop_10' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_12' moves 'candidate_path' 0.10s after 'hop_10' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_13' moves 'candidate_path' 0.20s after 'hop_10' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_14' moves 'candidate_path' 0.30s after 'hop_10' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_15' moves 'candidate_path' 0.40s after 'hop_10' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_12' moves 'candidate_path' 0.00s after 'hop_11' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_13' moves 'candidate_path' 0.10s after 'hop_11' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_14' moves 'candidate_path' 0.20s after 'hop_11' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_15' moves 'candidate_path' 0.30s after 'hop_11' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_16' moves 'candidate_path' 0.40s after 'hop_11' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_13' moves 'candidate_path' 0.00s after 'hop_12' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_14' moves 'candidate_path' 0.10s after 'hop_12' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_15' moves 'candidate_path' 0.20s after 'hop_12' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_16' moves 'candidate_path' 0.30s after 'hop_12' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_17' moves 'candidate_path' 0.40s after 'hop_12' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_14' moves 'candidate_path' 0.00s after 'hop_13' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_15' moves 'candidate_path' 0.10s after 'hop_13' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_16' moves 'candidate_path' 0.20s after 'hop_13' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_17' moves 'candidate_path' 0.30s after 'hop_13' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_18' moves 'candidate_path' 0.40s after 'hop_13' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_15' moves 'candidate_path' 0.00s after 'hop_14' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_16' moves 'candidate_path' 0.10s after 'hop_14' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_17' moves 'candidate_path' 0.20s after 'hop_14' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_18' moves 'candidate_path' 0.30s after 'hop_14' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_19' moves 'candidate_path' 0.40s after 'hop_14' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_16' moves 'candidate_path' 0.00s after 'hop_15' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_17' moves 'candidate_path' 0.10s after 'hop_15' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_18' moves 'candidate_path' 0.20s after 'hop_15' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_19' moves 'candidate_path' 0.30s after 'hop_15' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_20' moves 'candidate_path' 0.40s after 'hop_15' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_17' moves 'candidate_path' 0.00s after 'hop_16' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_18' moves 'candidate_path' 0.10s after 'hop_16' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_19' moves 'candidate_path' 0.20s after 'hop_16' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_20' moves 'candidate_path' 0.30s after 'hop_16' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_21' moves 'candidate_path' 0.40s after 'hop_16' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_18' moves 'candidate_path' 0.00s after 'hop_17' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_19' moves 'candidate_path' 0.10s after 'hop_17' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_20' moves 'candidate_path' 0.20s after 'hop_17' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_21' moves 'candidate_path' 0.30s after 'hop_17' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_22' moves 'candidate_path' 0.40s after 'hop_17' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_19' moves 'candidate_path' 0.00s after 'hop_18' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_20' moves 'candidate_path' 0.10s after 'hop_18' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_21' moves 'candidate_path' 0.20s after 'hop_18' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_22' moves 'candidate_path' 0.30s after 'hop_18' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_23' moves 'candidate_path' 0.40s after 'hop_18' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_20' moves 'candidate_path' 0.00s after 'hop_19' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_21' moves 'candidate_path' 0.10s after 'hop_19' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_22' moves 'candidate_path' 0.20s after 'hop_19' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_23' moves 'candidate_path' 0.30s after 'hop_19' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_24' moves 'candidate_path' 0.40s after 'hop_19' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_21' moves 'candidate_path' 0.00s after 'hop_20' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_22' moves 'candidate_path' 0.10s after 'hop_20' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_23' moves 'candidate_path' 0.20s after 'hop_20' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_24' moves 'candidate_path' 0.30s after 'hop_20' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_25' moves 'candidate_path' 0.40s after 'hop_20' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_22' moves 'candidate_path' 0.00s after 'hop_21' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_23' moves 'candidate_path' 0.10s after 'hop_21' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_24' moves 'candidate_path' 0.20s after 'hop_21' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_25' moves 'candidate_path' 0.30s after 'hop_21' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_26' moves 'candidate_path' 0.40s after 'hop_21' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_23' moves 'candidate_path' 0.00s after 'hop_22' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_24' moves 'candidate_path' 0.10s after 'hop_22' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_25' moves 'candidate_path' 0.20s after 'hop_22' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_26' moves 'candidate_path' 0.30s after 'hop_22' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_27' moves 'candidate_path' 0.40s after 'hop_22' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_24' moves 'candidate_path' 0.00s after 'hop_23' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_25' moves 'candidate_path' 0.10s after 'hop_23' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_26' moves 'candidate_path' 0.20s after 'hop_23' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_27' moves 'candidate_path' 0.30s after 'hop_23' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_28' moves 'candidate_path' 0.40s after 'hop_23' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_25' moves 'candidate_path' 0.00s after 'hop_24' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_26' moves 'candidate_path' 0.10s after 'hop_24' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_27' moves 'candidate_path' 0.20s after 'hop_24' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_28' moves 'candidate_path' 0.30s after 'hop_24' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_29' moves 'candidate_path' 0.40s after 'hop_24' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_26' moves 'candidate_path' 0.00s after 'hop_25' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_27' moves 'candidate_path' 0.10s after 'hop_25' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_28' moves 'candidate_path' 0.20s after 'hop_25' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_29' moves 'candidate_path' 0.30s after 'hop_25' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_30' moves 'candidate_path' 0.40s after 'hop_25' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_27' moves 'candidate_path' 0.00s after 'hop_26' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_28' moves 'candidate_path' 0.10s after 'hop_26' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_29' moves 'candidate_path' 0.20s after 'hop_26' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_30' moves 'candidate_path' 0.30s after 'hop_26' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_31' moves 'candidate_path' 0.40s after 'hop_26' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_28' moves 'candidate_path' 0.00s after 'hop_27' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_29' moves 'candidate_path' 0.10s after 'hop_27' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_30' moves 'candidate_path' 0.20s after 'hop_27' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_31' moves 'candidate_path' 0.30s after 'hop_27' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_32' moves 'candidate_path' 0.40s after 'hop_27' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_29' moves 'candidate_path' 0.00s after 'hop_28' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_30' moves 'candidate_path' 0.10s after 'hop_28' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_31' moves 'candidate_path' 0.20s after 'hop_28' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_32' moves 'candidate_path' 0.30s after 'hop_28' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_33' moves 'candidate_path' 0.40s after 'hop_28' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_30' moves 'candidate_path' 0.00s after 'hop_29' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_31' moves 'candidate_path' 0.10s after 'hop_29' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_32' moves 'candidate_path' 0.20s after 'hop_29' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_33' moves 'candidate_path' 0.30s after 'hop_29' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_34' moves 'candidate_path' 0.40s after 'hop_29' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_31' moves 'candidate_path' 0.00s after 'hop_30' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_32' moves 'candidate_path' 0.10s after 'hop_30' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_33' moves 'candidate_path' 0.20s after 'hop_30' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_34' moves 'candidate_path' 0.30s after 'hop_30' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_35' moves 'candidate_path' 0.40s after 'hop_30' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_32' moves 'candidate_path' 0.00s after 'hop_31' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_33' moves 'candidate_path' 0.10s after 'hop_31' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_34' moves 'candidate_path' 0.20s after 'hop_31' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_35' moves 'candidate_path' 0.30s after 'hop_31' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_36' moves 'candidate_path' 0.40s after 'hop_31' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_33' moves 'candidate_path' 0.00s after 'hop_32' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_34' moves 'candidate_path' 0.10s after 'hop_32' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_35' moves 'candidate_path' 0.20s after 'hop_32' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_36' moves 'candidate_path' 0.30s after 'hop_32' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_37' moves 'candidate_path' 0.40s after 'hop_32' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_34' moves 'candidate_path' 0.00s after 'hop_33' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_35' moves 'candidate_path' 0.10s after 'hop_33' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_36' moves 'candidate_path' 0.20s after 'hop_33' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_37' moves 'candidate_path' 0.30s after 'hop_33' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_38' moves 'candidate_path' 0.40s after 'hop_33' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_35' moves 'candidate_path' 0.00s after 'hop_34' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_36' moves 'candidate_path' 0.10s after 'hop_34' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_37' moves 'candidate_path' 0.20s after 'hop_34' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_38' moves 'candidate_path' 0.30s after 'hop_34' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_39' moves 'candidate_path' 0.40s after 'hop_34' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_36' moves 'candidate_path' 0.00s after 'hop_35' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_37' moves 'candidate_path' 0.10s after 'hop_35' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_38' moves 'candidate_path' 0.20s after 'hop_35' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_39' moves 'candidate_path' 0.30s after 'hop_35' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_40' moves 'candidate_path' 0.40s after 'hop_35' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_37' moves 'candidate_path' 0.00s after 'hop_36' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_38' moves 'candidate_path' 0.10s after 'hop_36' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_39' moves 'candidate_path' 0.20s after 'hop_36' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_40' moves 'candidate_path' 0.30s after 'hop_36' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_41' moves 'candidate_path' 0.40s after 'hop_36' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_38' moves 'candidate_path' 0.00s after 'hop_37' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_39' moves 'candidate_path' 0.10s after 'hop_37' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_40' moves 'candidate_path' 0.20s after 'hop_37' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_41' moves 'candidate_path' 0.30s after 'hop_37' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_42' moves 'candidate_path' 0.40s after 'hop_37' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_39' moves 'candidate_path' 0.00s after 'hop_38' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_40' moves 'candidate_path' 0.10s after 'hop_38' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_41' moves 'candidate_path' 0.20s after 'hop_38' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_42' moves 'candidate_path' 0.30s after 'hop_38' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_43' moves 'candidate_path' 0.40s after 'hop_38' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_40' moves 'candidate_path' 0.00s after 'hop_39' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_41' moves 'candidate_path' 0.10s after 'hop_39' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_42' moves 'candidate_path' 0.20s after 'hop_39' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_43' moves 'candidate_path' 0.30s after 'hop_39' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_44' moves 'candidate_path' 0.40s after 'hop_39' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_41' moves 'candidate_path' 0.00s after 'hop_40' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_42' moves 'candidate_path' 0.10s after 'hop_40' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_43' moves 'candidate_path' 0.20s after 'hop_40' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_44' moves 'candidate_path' 0.30s after 'hop_40' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_45' moves 'candidate_path' 0.40s after 'hop_40' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_42' moves 'candidate_path' 0.00s after 'hop_41' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_43' moves 'candidate_path' 0.10s after 'hop_41' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_44' moves 'candidate_path' 0.20s after 'hop_41' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_45' moves 'candidate_path' 0.30s after 'hop_41' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_46' moves 'candidate_path' 0.40s after 'hop_41' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_43' moves 'candidate_path' 0.00s after 'hop_42' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_44' moves 'candidate_path' 0.10s after 'hop_42' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_45' moves 'candidate_path' 0.20s after 'hop_42' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_46' moves 'candidate_path' 0.30s after 'hop_42' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_47' moves 'candidate_path' 0.40s after 'hop_42' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_44' moves 'candidate_path' 0.00s after 'hop_43' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_45' moves 'candidate_path' 0.10s after 'hop_43' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_46' moves 'candidate_path' 0.20s after 'hop_43' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_47' moves 'candidate_path' 0.30s after 'hop_43' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_48' moves 'candidate_path' 0.40s after 'hop_43' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_45' moves 'candidate_path' 0.00s after 'hop_44' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_46' moves 'candidate_path' 0.10s after 'hop_44' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_47' moves 'candidate_path' 0.20s after 'hop_44' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_48' moves 'candidate_path' 0.30s after 'hop_44' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_49' moves 'candidate_path' 0.40s after 'hop_44' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_46' moves 'candidate_path' 0.00s after 'hop_45' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_47' moves 'candidate_path' 0.10s after 'hop_45' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_48' moves 'candidate_path' 0.20s after 'hop_45' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_49' moves 'candidate_path' 0.30s after 'hop_45' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_50' moves 'candidate_path' 0.40s after 'hop_45' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_47' moves 'candidate_path' 0.00s after 'hop_46' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_48' moves 'candidate_path' 0.10s after 'hop_46' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_49' moves 'candidate_path' 0.20s after 'hop_46' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_50' moves 'candidate_path' 0.30s after 'hop_46' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_51' moves 'candidate_path' 0.40s after 'hop_46' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_48' moves 'candidate_path' 0.00s after 'hop_47' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_49' moves 'candidate_path' 0.10s after 'hop_47' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_50' moves 'candidate_path' 0.20s after 'hop_47' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_51' moves 'candidate_path' 0.30s after 'hop_47' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_52' moves 'candidate_path' 0.40s after 'hop_47' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_49' moves 'candidate_path' 0.00s after 'hop_48' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_50' moves 'candidate_path' 0.10s after 'hop_48' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_51' moves 'candidate_path' 0.20s after 'hop_48' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_52' moves 'candidate_path' 0.30s after 'hop_48' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_50' moves 'candidate_path' 0.00s after 'hop_49' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_51' moves 'candidate_path' 0.10s after 'hop_49' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_52' moves 'candidate_path' 0.20s after 'hop_49' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_51' moves 'candidate_path' 0.00s after 'hop_50' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_52' moves 'candidate_path' 0.10s after 'hop_50' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_52' moves 'candidate_path' 0.00s after 'hop_51' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_53' moves 'candidate_path' 0.05s after 'kept_out' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_54' moves 'candidate_path' 0.40s after 'kept_out' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_54' moves 'candidate_path' 0.00s after 'hop_53' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_55' moves 'candidate_path' 0.35s after 'hop_53' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_55' moves 'candidate_path' 0.00s after 'hop_54' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_56' moves 'candidate_path' 0.35s after 'hop_54' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_56' moves 'candidate_path' 0.00s after 'hop_55' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_57' moves 'candidate_path' 0.35s after 'hop_55' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_57' moves 'candidate_path' 0.00s after 'hop_56' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_58' moves 'candidate_path' 0.35s after 'hop_56' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_58' moves 'candidate_path' 0.00s after 'hop_57' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_59' moves 'candidate_path' 0.35s after 'hop_57' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_59' moves 'candidate_path' 0.00s after 'hop_58' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_60' moves 'candidate_path' 0.35s after 'hop_58' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_60' moves 'candidate_path' 0.00s after 'hop_59' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_61' moves 'candidate_path' 0.35s after 'hop_59' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_61' moves 'candidate_path' 0.00s after 'hop_60' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_62' moves 'candidate_path' 0.35s after 'hop_60' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_62' moves 'candidate_path' 0.00s after 'hop_61' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_63' moves 'candidate_path' 0.35s after 'hop_61' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - "action 'hop_63' moves 'candidate_path' 0.00s after 'hop_62' has finished; the style asks for a rest of 0.5s
+    so the end state is seen before it changes again: start it later or lengthen its lead-in"
+  - scene 'fit' names pattern 'linked_views' but uses none of its components (function_plot, surface_plot, 
+    function_image)

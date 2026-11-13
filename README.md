@@ -109,6 +109,10 @@ drift from `main` as a warning, builds with `main`'s own copy, and publishes not
 - Divisive normalization has the first manim8 workspace, with one clip: manim8's `divisive_normalization` example,
   rendered by `lk clips` in the continuous build and committed as the fallback. It is on no slide: its equation is
   the example's schematic, and it is replaced, with the lecturer's sign-off, before the clip is used.
+- Population receptive fields is the first project built from a lecturer's clips: a fifteen-minute talk, one slide
+  per clip, four manim8 clips made from the lecturer's seeds with custom builders (rung R5), rendered and built in
+  paper and dark. Its one hold for lecturing is not on the slide yet: lecturekit 0.4.0 measures no rest before it,
+  so `tools/check_clips.py` reports it (the project's README says why and what fixes it).
 - Not yet built: the gallery's clip previews (they wait for `lk clips --preview`, which lecturekit does not have),
   its filters, the clip reel and the reader (PLAN.md).
 

@@ -1,0 +1,694 @@
+schema_version: '1.0'
+project_id: grid_and_fit
+based_on_animation_revision: working
+scenes:
+  - id: fit
+    start_seconds: 0
+    end_seconds: 20.0
+    purpose: "One candidate position drives two pictures: the candidate field in the visual field and its predicted
+      time course over the measured voxel, with x, y, sigma and R squared read out. Four slow candidates, 48 fast
+      ones with the best so far kept as a dashed outline, the best grid point, then eleven refinement steps to the
+      optimum and the line with the fitted values. The candidate_path object's parameters candidate and retire_kept
+      are declared as zero-window smooth transforms of its binding, which leave the table unchanged (manim8 declares
+      a custom object's parameters only there)."
+    patterns:
+      - linked_views
+    objects:
+      - id: visual_field
+        kind: custom
+        params:
+          builder: grid_fit:visual_field
+          arguments:
+            radius_deg: 4
+            scale_bar_deg: 2
+            roles:
+              outline: hairline
+              fixation: muted
+              scale_bar: muted
+            weights_px_at_1080p:
+              outline: 3.6
+              fixation: 3.1
+              scale_bar: 3.6
+      - id: time_course
+        kind: custom
+        style_role: foreground
+        data:
+          source: timecourses
+          encoding:
+            x: t_s
+            y: measured
+        params:
+          builder: grid_fit:time_course
+          arguments:
+            time_range:
+              - 0
+              - 306
+            value_range:
+              - -3.36
+              - 8.07
+            time_ticks:
+              - 0
+              - 100
+              - 200
+              - 300
+            time_label: time (s)
+            value_label: BOLD (% signal change)
+            label: measured voxel
+            roles:
+              axes: muted
+              ticks: secondary_text
+              axis_labels: secondary_text
+            weights_px_at_1080p:
+              axes: 1.9
+              trace: 3.0
+      - id: heading_grid
+        kind: custom
+        style_role: muted
+        params:
+          builder: grid_fit:field_heading
+          arguments:
+            field: visual_field
+            text: grid search
+            text_role: body
+      - id: heading_refine
+        kind: custom
+        style_role: muted
+        reveal_at_seconds: 11.8
+        params:
+          builder: grid_fit:field_heading
+          arguments:
+            field: visual_field
+            text: refinement
+            text_role: body
+      - id: candidate_path
+        kind: custom
+        data:
+          source: candidates
+          encoding:
+            x: seq
+            y: r2
+          transforms:
+            - op: smooth
+              column: seq
+              window:
+                parameter: candidate
+                default: 0
+            - op: smooth
+              column: seq
+              window:
+                parameter: retire_kept
+                default: 0
+        params:
+          builder: grid_fit:candidate_path
+          arguments:
+            field: visual_field
+            panel: time_course
+            columns:
+              x: x_deg
+              y: y_deg
+              sigma: sigma_deg
+              r2: r2
+              phase: phase
+            predictions:
+              source: timecourses
+              time: t_s
+              prefix: p
+            kept_phases:
+              - slow
+              - fast
+              - grid_best
+            roles:
+              candidate: primary_signal
+              kept: muted
+            text_roles:
+              params: annotation
+              r2: body
+            weights_px_at_1080p:
+              candidate: 4.8
+              kept: 2.4
+              prediction: 4.2
+            dot_radius_px_at_1080p: 7
+            dash_px_at_1080p: 9
+      - id: fit_line
+        kind: custom
+        style_role: foreground
+        reveal_at_seconds: 17.0
+        params:
+          builder: grid_fit:panel_text
+          arguments:
+            panel: time_course
+            text: 'fit: x 2.27°, y 0.99°, σ 0.85°, R² 0.86'
+            text_role: body
+    actions:
+      - id: hop_01
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 1
+        at_seconds: 1.4
+        duration_seconds: 0.9
+        show_value: false
+      - id: hop_02
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 2
+        at_seconds: 2.8
+        duration_seconds: 0.9
+        show_value: false
+      - id: hop_03
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 3
+        at_seconds: 4.2
+        duration_seconds: 0.9
+        show_value: false
+      - id: hop_04
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 4
+        at_seconds: 5.6
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_05
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 5
+        at_seconds: 5.7
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_06
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 6
+        at_seconds: 5.8
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_07
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 7
+        at_seconds: 5.9
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_08
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 8
+        at_seconds: 6.0
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_09
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 9
+        at_seconds: 6.1
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_10
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 10
+        at_seconds: 6.2
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_11
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 11
+        at_seconds: 6.3
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_12
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 12
+        at_seconds: 6.4
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_13
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 13
+        at_seconds: 6.5
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_14
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 14
+        at_seconds: 6.6
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_15
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 15
+        at_seconds: 6.7
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_16
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 16
+        at_seconds: 6.8
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_17
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 17
+        at_seconds: 6.9
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_18
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 18
+        at_seconds: 7.0
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_19
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 19
+        at_seconds: 7.1
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_20
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 20
+        at_seconds: 7.2
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_21
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 21
+        at_seconds: 7.3
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_22
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 22
+        at_seconds: 7.4
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_23
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 23
+        at_seconds: 7.5
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_24
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 24
+        at_seconds: 7.6
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_25
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 25
+        at_seconds: 7.7
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_26
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 26
+        at_seconds: 7.8
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_27
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 27
+        at_seconds: 7.9
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_28
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 28
+        at_seconds: 8.0
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_29
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 29
+        at_seconds: 8.1
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_30
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 30
+        at_seconds: 8.2
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_31
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 31
+        at_seconds: 8.3
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_32
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 32
+        at_seconds: 8.4
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_33
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 33
+        at_seconds: 8.5
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_34
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 34
+        at_seconds: 8.6
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_35
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 35
+        at_seconds: 8.7
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_36
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 36
+        at_seconds: 8.8
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_37
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 37
+        at_seconds: 8.9
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_38
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 38
+        at_seconds: 9.0
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_39
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 39
+        at_seconds: 9.1
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_40
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 40
+        at_seconds: 9.2
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_41
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 41
+        at_seconds: 9.3
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_42
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 42
+        at_seconds: 9.4
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_43
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 43
+        at_seconds: 9.5
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_44
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 44
+        at_seconds: 9.6
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_45
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 45
+        at_seconds: 9.7
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_46
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 46
+        at_seconds: 9.8
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_47
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 47
+        at_seconds: 9.9
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_48
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 48
+        at_seconds: 10.0
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_49
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 49
+        at_seconds: 10.1
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_50
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 50
+        at_seconds: 10.2
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_51
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 51
+        at_seconds: 10.3
+        duration_seconds: 0.1
+        show_value: false
+      - id: hop_52
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 52
+        at_seconds: 10.4
+        duration_seconds: 0.8
+        show_value: false
+      - id: heading_out
+        kind: fade_object
+        target: heading_grid
+        visible: false
+        at_seconds: 11.8
+        duration_seconds: 0.85
+      - id: kept_out
+        kind: vary_parameter
+        target: candidate_path
+        parameter: retire_kept
+        to: 1
+        at_seconds: 11.8
+        duration_seconds: 0.85
+        show_value: false
+      - id: hop_53
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 53
+        at_seconds: 12.7
+        duration_seconds: 0.35
+        show_value: false
+      - id: hop_54
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 54
+        at_seconds: 13.05
+        duration_seconds: 0.35
+        show_value: false
+      - id: hop_55
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 55
+        at_seconds: 13.4
+        duration_seconds: 0.35
+        show_value: false
+      - id: hop_56
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 56
+        at_seconds: 13.75
+        duration_seconds: 0.35
+        show_value: false
+      - id: hop_57
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 57
+        at_seconds: 14.1
+        duration_seconds: 0.35
+        show_value: false
+      - id: hop_58
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 58
+        at_seconds: 14.45
+        duration_seconds: 0.35
+        show_value: false
+      - id: hop_59
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 59
+        at_seconds: 14.8
+        duration_seconds: 0.35
+        show_value: false
+      - id: hop_60
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 60
+        at_seconds: 15.15
+        duration_seconds: 0.35
+        show_value: false
+      - id: hop_61
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 61
+        at_seconds: 15.5
+        duration_seconds: 0.35
+        show_value: false
+      - id: hop_62
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 62
+        at_seconds: 15.85
+        duration_seconds: 0.35
+        show_value: false
+      - id: hop_63
+        kind: vary_parameter
+        target: candidate_path
+        parameter: candidate
+        to: 63
+        at_seconds: 16.2
+        duration_seconds: 0.35
+        show_value: false
+    snapshots:
+      - id: layout
+        at_seconds: 1.2
+        description: "The layout, fully revealed (every object fades in over the style's reveal time from 0 s):
+          left, the field out to 4 deg with fixation, the 2 deg scale bar and the heading 'grid search'; right,
+          the measured voxel's time course on 'time (s)' and 'BOLD (% signal change)', labelled 'measured voxel'.
+          The first candidate (seq 0, x -1.00, y -3.00, sigma 2.00 deg, R squared 0.00) with its prediction over
+          the data."
+      - id: slow_candidates
+        at_seconds: 5.4
+        description: Rest after the fourth slow candidate (seq 3, x +1.00, y +0.00, sigma 0.50 deg, R squared 
+          0.33); it is also the best so far, so its dashed outline lies under the candidate's circle.
+      - id: fast_grid
+        at_seconds: 6.3
+        description: In the fast phase, the end of the hop to seq 10 (x -2.00, y -2.00, sigma 2.00 deg, R 
+          squared 0.00); the dashed outline keeps the best so far, seq 7 (x +1.00, y +1.00, sigma 0.50 deg, R 
+          squared 0.47).
+      - id: grid_best
+        at_seconds: 11.5
+        description: Rest on the best grid point (seq 52, x +2.00, y +1.00, sigma 1.00 deg, R squared 0.84); 
+          the dashed outline coincides with it.
+      - id: refinement
+        at_seconds: 12.7
+        description: The heading reads 'refinement' and the dashed outline is gone; the candidate is still on 
+          the best grid point, the moment before the first refinement step.
+      - id: optimum
+        at_seconds: 16.8
+        description: After eleven refinement steps, the optimum (seq 63, x +2.27, y +0.99, sigma 0.85 deg, R 
+          squared 0.86); the prediction lies on the data. No fit line yet.
+      - id: result
+        at_seconds: 19.9
+        description: "The end state and study still: the optimum with its prediction over the measured voxel, the
+          readouts x +2.27, y +0.99, sigma 0.85 deg and R squared 0.86, the heading 'refinement' and, under the
+          time course, 'fit: x 2.27°, y 0.99°, σ 0.85°, R² 0.86'."

@@ -1,0 +1,281 @@
+schema_version: '1.0'
+project_id: model_as_chain
+based_on_animation_revision: working
+scenes:
+  - id: chain
+    start_seconds: 0
+    end_seconds: 15.5
+    purpose: The loop of modelling (parameters theta and a stimulus feed a model whose prediction lies on the 
+      data) opens its model box into a chain of seven stages; theta tags land on the four fitted stages, and 
+      one pulse runs from the stimulus to BOLD, where the prediction is drawn over the data.
+    patterns:
+      - reveal_in_reading_order
+    objects:
+      - id: modelling_loop
+        kind: custom
+        data:
+          source: panel
+          encoding:
+            x: t_s
+            y: data
+          transforms:
+            - op: smooth
+              column: t_s
+              window:
+                parameter: feed
+                default: 0
+            - op: smooth
+              column: t_s
+              window:
+                parameter: emit
+                default: 0
+            - op: smooth
+              column: t_s
+              window:
+                parameter: shrink
+                default: 0
+        params:
+          builder: chain_builders:loop
+          arguments:
+            prediction_column: prediction
+      - id: funnel
+        kind: custom
+        data:
+          source: panel
+          encoding:
+            x: t_s
+            y: data
+        params:
+          builder: chain_builders:funnel
+        reveal_at_seconds: 3.9
+      - id: model_hull
+        kind: custom
+        params:
+          builder: chain_builders:hull
+        reveal_at_seconds: 3.9
+      - id: model_outline
+        kind: custom
+        data:
+          source: panel
+          encoding:
+            x: t_s
+            y: data
+        params:
+          builder: chain_builders:model_outline
+        reveal_at_seconds: 3.9
+      - id: box_stimulus
+        kind: custom
+        params:
+          builder: chain_builders:stage_box
+          arguments:
+            stage: 0
+        reveal_at_seconds: 4.9
+      - id: box_features
+        kind: custom
+        params:
+          builder: chain_builders:stage_box
+          arguments:
+            stage: 1
+        reveal_at_seconds: 5.0
+      - id: box_pooling
+        kind: custom
+        params:
+          builder: chain_builders:stage_box
+          arguments:
+            stage: 2
+        reveal_at_seconds: 5.1
+      - id: box_transformation
+        kind: custom
+        params:
+          builder: chain_builders:stage_box
+          arguments:
+            stage: 3
+        reveal_at_seconds: 5.2
+      - id: box_dynamics
+        kind: custom
+        params:
+          builder: chain_builders:stage_box
+          arguments:
+            stage: 4
+        reveal_at_seconds: 5.3
+      - id: box_hrf
+        kind: custom
+        params:
+          builder: chain_builders:stage_box
+          arguments:
+            stage: 5
+        reveal_at_seconds: 5.4
+      - id: box_bold
+        kind: custom
+        data:
+          source: panel
+          encoding:
+            x: t_s
+            y: data
+        params:
+          builder: chain_builders:stage_box
+          arguments:
+            stage: 6
+        reveal_at_seconds: 5.5
+      - id: bold_prediction
+        kind: custom
+        data:
+          source: panel
+          encoding:
+            x: t_s
+            y: prediction
+          transforms:
+            - op: scale
+              column: data
+              by:
+                parameter: drawn
+                default: 1
+        params:
+          builder: chain_builders:bold_prediction
+        reveal_at_seconds: 5.5
+      - id: links
+        kind: custom
+        params:
+          builder: chain_builders:links
+        reveal_at_seconds: 6.4
+      - id: theta_split
+        kind: custom
+        data:
+          source: panel
+          encoding:
+            x: t_s
+            y: data
+          transforms:
+            - op: smooth
+              column: data
+              window:
+                parameter: split
+                default: 0
+        params:
+          builder: chain_builders:theta_split
+        reveal_at_seconds: 6.4
+      - id: theta_stems
+        kind: custom
+        params:
+          builder: chain_builders:stems
+        reveal_at_seconds: 8.3
+      - id: pulse
+        kind: custom
+        data:
+          source: panel
+          encoding:
+            x: t_s
+            y: data
+          transforms:
+            - op: smooth
+              column: data
+              window:
+                parameter: travel
+                default: 0
+        params:
+          builder: chain_builders:pulse
+        reveal_at_seconds: 8.45
+    actions:
+      - id: feed_loop
+        kind: vary_parameter
+        target: modelling_loop
+        parameter: feed
+        to: 1
+        at_seconds: 0.4
+        duration_seconds: 0.8
+        show_value: false
+      - id: emit_prediction
+        kind: vary_parameter
+        target: modelling_loop
+        parameter: emit
+        to: 1
+        at_seconds: 1.2
+        duration_seconds: 0.6
+        show_value: false
+      - id: shrink_loop
+        kind: vary_parameter
+        target: modelling_loop
+        parameter: shrink
+        to: 1
+        at_seconds: 2.6
+        duration_seconds: 1.3
+        show_value: false
+      - id: split_theta
+        kind: vary_parameter
+        target: theta_split
+        parameter: split
+        to: 1
+        at_seconds: 7.3
+        duration_seconds: 1.0
+        show_value: false
+      - id: clear_bold_prediction
+        kind: vary_parameter
+        target: bold_prediction
+        parameter: drawn
+        to: 0
+        at_seconds: 9.3
+        duration_seconds: 0.0333
+        show_value: false
+      - id: run_pulse
+        kind: vary_parameter
+        target: pulse
+        parameter: travel
+        to: 1
+        at_seconds: 9.3
+        duration_seconds: 3.2
+        easing: linear
+        show_value: false
+      - id: fade_pulse
+        kind: fade_object
+        target: pulse
+        visible: false
+        at_seconds: 12.5
+        duration_seconds: 1.2
+      - id: draw_prediction
+        kind: vary_parameter
+        target: bold_prediction
+        parameter: drawn
+        to: 1
+        at_seconds: 12.5
+        duration_seconds: 1.2
+        show_value: false
+    snapshots:
+      - id: dots_travel
+        at_seconds: 0.9
+        description: "The loop: 'parameters θ' and 'stimulus' above the 'model' box with its gear, the prediction
+          on the data in the panel below; two dots run the arrows into the model and the gear is turning."
+      - id: loop
+        at_seconds: 2.0
+        description: The loop at rest after the three dots, the gear a quarter turned (the original's first 
+          keyframe).
+      - id: shrink
+        at_seconds: 3.9
+        description: The loop shrunk to 45 per cent at the top centre; nothing below it yet.
+      - id: open
+        at_seconds: 7.3
+        description: 'The model opened: heavier model outline, light funnel down to the dashed outline round boxes
+          two to six, the seven boxes left to right (stimulus S, features Φ(S), spatial pooling, transformation
+          f, neural dynamics, HRF, BOLD) and the arrows between them.'
+      - id: tags
+        at_seconds: 8.3
+        description: The copy of the θ box has split into four θ tags over spatial pooling, transformation, 
+          neural dynamics and HRF.
+      - id: pulse
+        at_seconds: 9.3
+        description: Tags joined to their boxes by stems; the pulse dot waits at the stimulus box's right 
+          edge; the BOLD box still shows the prediction on the data.
+      - id: pulse_in_transformation
+        at_seconds: 10.9
+        description: The pulse, at constant speed, is inside the transformation box, which is darkened; the 
+          BOLD box shows the data alone.
+      - id: prediction
+        at_seconds: 12.5
+        description: The pulse has reached the BOLD box; no stage is darkened; the prediction is about to be 
+          drawn.
+      - id: drawing
+        at_seconds: 13.1
+        description: The prediction is being drawn over the data in the BOLD box, the pulse fading.
+      - id: study
+        at_seconds: 15.4
+        description: 'End state, the study still: the loop at the top, the funnel, the seven boxes with their glyphs,
+          four θ tags, and the prediction drawn over the data in the BOLD box.'

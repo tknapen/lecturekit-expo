@@ -1,0 +1,33 @@
+# what the gallery shows about this project (tools/gallery.py); tools/check_meta.py checks it:
+# - minutes equals `budget:` in the front matter of slides.qmd;
+# - clips are slugs (lowercase letters, digits and underscores, starting with a letter), the names the deck uses
+#   in clip= and the manim8 project directories under clips/families/<family>/;
+# - manim8_kinds are kinds in manim8's registry (scianim_core.components.REGISTRY), and include every kind a
+#   storyboard under clips/ uses;
+# - presets are paper and, where the project declares it, dark (the continuous build then builds both).
+title: 'Population receptive fields, from stimulus to map'
+minutes: 15
+field: vision, neuroimaging methods
+deck: talk
+sources:
+- "the lecturer's four pRF clip seeds (sources/prf-clips, with the data and the original hand-written Manim scenes
+  of the Coimbra pRF workshop and the lecture of 18 November 2026)"
+- "prfmodel, which simulated stimulus_to_bold's run (Gaussian 2D pRF, two-gamma HRF) and fitted fields_to_map's
+  simulated voxels and grid_and_fit's candidates"
+- "7t-aot-visual, prfmodel's example dataset, sub-003 (Knapen 2026, figshare, CC BY 4.0), the measured voxel of
+  grid_and_fit"
+device: a claim per slide, shown by a clip that stands alone; a pause on the complete eccentricity map for the room
+  to predict the second colouring
+clips:
+- stimulus_to_bold
+- model_as_chain
+- grid_and_fit
+- fields_to_map
+manim8_kinds:
+- custom
+- text_caption
+presets:
+- paper
+- dark
+author: Tomas Knapen
+licence: CC BY 4.0

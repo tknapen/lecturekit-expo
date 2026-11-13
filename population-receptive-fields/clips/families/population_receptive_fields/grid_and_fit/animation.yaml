@@ -1,0 +1,106 @@
+schema_version: "1.0"
+id: grid_and_fit
+title: "Grid search and refinement of a pRF fit"
+sources:
+  - id: candidates
+    type: csv
+    path: data/candidates.csv
+    role: empirical_data
+    citation: "The candidates in the order the clip shows them: 4 slow, 48 fast, the best of a grid of 147 (7 by 7 centres from -3 to 3 deg, sizes 0.5, 1 and 2 deg), then 11 refinement steps. Fitted with prfmodel (Gaussian2DPRFModel; amplitude and baseline by least squares per candidate)."
+  - id: timecourses
+    type: csv
+    path: data/timecourses.csv
+    role: empirical_data
+    citation: "Column 'measured': one voxel of prfmodel's example dataset 7t-aot-visual, sub-003 (Knapen 2026, figshare, CC BY 4.0), in per cent signal change, 340 s. Columns p00 to p63: the prediction of each candidate in candidates.csv (seq)."
+  - id: brief
+    type: markdown
+    path: references/brief.md
+    role: explanatory_text
+  - id: original_scene
+    type: text
+    path: references/original_scene.py
+    role: composition_reference
+    citation: "The hand-written Manim scene of the Coimbra pRF workshop; read for geometry and timing, do not run."
+  - id: last_frame
+    type: image
+    path: references/last_frame.jpg
+    role: target_keyframe
+output:
+  duration_seconds: 20
+  width_px: 1280
+  height_px: 720
+  aspect_ratio: "16:9"
+  fps: 30
+  container: mp4
+  video_codec: h264
+  audio: none
+style:
+  name: lecturekit_paper
+  version: "0.1.0"
+  overrides: {}
+equations: []
+audience: "visitors of a lab website with a science background"
+objective: >-
+  Fitting a Gaussian pRF to one measured voxel, in two stages. A candidate field (centre and one-sigma
+  circle) hops over a coarse grid of positions and sizes in the visual field while its predicted time
+  course is laid on the measurement and R squared is read out; the best candidate is kept. Then position
+  and size slide from the best grid point to the optimum and the prediction settles onto the data.
+scientific_constraints:
+  - id: candidates_exact
+    kind: hard
+    text: "Every candidate shown is a row of candidates.csv, in seq order, at its x, y and sigma; its prediction is the matching column of timecourses.csv; the R squared readout is its r2 to two decimals."
+  - id: measured_fixed
+    kind: hard
+    text: "The measured time course and its axes never change; only the prediction, the candidate and the readouts do."
+  - id: best_kept
+    kind: hard
+    text: "During the grid search the best candidate so far stays visible as a dashed outline; it is removed when refinement starts."
+  - id: final_values
+    kind: hard
+    text: "The clip ends on x 2.27 deg, y 0.99 deg, sigma 0.85 deg, R squared 0.86, written out."
+  - id: measured_label
+    kind: hard
+    text: "The time course is labelled as a measured voxel; the prediction is not."
+timeline:
+  - id: layout
+    at_seconds: 0
+    tolerance_seconds: 0
+    kind: hard
+    instruction: "Left: visual field of radius 4 deg with fixation, a 2 deg scale bar, the heading 'grid search' above and the candidate's x, y and sigma below. Right: the measured time course (axes 'time (s)' and 'BOLD (% signal change)'), label 'measured voxel', readout 'R squared' at the top right."
+  - id: slow_candidates
+    at_seconds: 0
+    tolerance_seconds: 0.5
+    kind: preferred
+    instruction: "Phase 'slow': four candidates, about 0.9 s to move and 0.5 s to rest each, the prediction morphing with the candidate."
+  - id: fast_grid
+    at_seconds: 5.6
+    tolerance_seconds: 0.7
+    kind: preferred
+    instruction: "Phase 'fast': 48 candidates at about 0.1 s each, every one with its own prediction and R squared."
+  - id: grid_best
+    at_seconds: 10.4
+    tolerance_seconds: 0.7
+    kind: preferred
+    instruction: "Phase 'grid_best': move to the best grid point (2, 1) deg, sigma 1 deg, R squared 0.84; rest briefly."
+  - id: refinement
+    at_seconds: 12.3
+    tolerance_seconds: 0.7
+    kind: preferred
+    instruction: "The heading becomes 'refinement'; phase 'refine': eleven steps of about 0.35 s to the optimum."
+  - id: result
+    at_seconds: 16.7
+    tolerance_seconds: 0.7
+    kind: preferred
+    instruction: "The line with the fitted values fades in under the time course; hold to the end."
+direction:
+  tone: "Plain, precise, unhurried"
+  avoid:
+    - "Titles or captions beyond the two headings and the readouts"
+    - "Showing all 147 grid points as a static lattice"
+  prefer:
+    - "Colour by role only: measured time course, its label and the final line in foreground; candidate, prediction and readouts in primary_signal; kept best and headings in muted; field outline in grid"
+    - "Identical geometry and timing under the light and the dark style"
+extensions:
+  website:
+    themes: [light, dark]
+    poster: last_frame

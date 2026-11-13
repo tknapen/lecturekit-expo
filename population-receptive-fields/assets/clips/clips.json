@@ -1,0 +1,161 @@
+{
+  "fields_to_map": {
+    "checkpoints": {
+      "direction_map": "assets/clips/fields_to_map.direction_map.png",
+      "eccentricity": "assets/clips/fields_to_map.eccentricity.png",
+      "first_fits": "assets/clips/fields_to_map.first_fits.png",
+      "fits_arrive": "assets/clips/fields_to_map.fits_arrive.png",
+      "layout": "assets/clips/fields_to_map.layout.png",
+      "polar_angle": "assets/clips/fields_to_map.polar_angle.png"
+    },
+    "duration": 18.0,
+    "end": {
+      "frame": 539,
+      "pts": 17.966016,
+      "still": "assets/clips/fields_to_map.f0539.png"
+    },
+    "format": 2,
+    "fps": 30.0,
+    "frames": 540,
+    "height": 720,
+    "job": {
+      "cache_key": "sha256:2484a74dade3638734ac8fb66f6533b52679b844d80e390a91ee0f4e805b9078",
+      "id": "job_20261113T151059_565b6c",
+      "registry_version": "0.5.0",
+      "style": "lecturekit_paper@0.1.0"
+    },
+    "poster": "assets/clips/fields_to_map.f0000.png",
+    "producer": "manim8",
+    "revision": "working",
+    "sha256": "de2ee335f3941415b9796332c81fe06a21fd15ae310c9541c5e10ebf4c655dfa",
+    "source": "clips/families/population_receptive_fields/fields_to_map",
+    "still": "assets/clips/fields_to_map.direction_map.png",
+    "stops": [
+      {
+        "frame": 387,
+        "frozen": [],
+        "id": "eccentricity",
+        "label": "coloured by eccentricity",
+        "notes": "The complete eccentricity map, at rest: 690 dots in the field and 690 squares on the sheet, coloured from fixation (0 deg) to 6.5 deg; the bands of colour run across the sheet. Key line: 'colour: distance from fixation'.",
+        "pts": 12.9,
+        "rest_after": 0,
+        "rest_before": 0,
+        "still": "assets/clips/fields_to_map.f0387.png"
+      }
+    ],
+    "video": "assets/clips/fields_to_map.mp4",
+    "width": 1280
+  },
+  "grid_and_fit": {
+    "checkpoints": {
+      "fast_grid": "assets/clips/grid_and_fit.fast_grid.png",
+      "grid_best": "assets/clips/grid_and_fit.grid_best.png",
+      "layout": "assets/clips/grid_and_fit.layout.png",
+      "optimum": "assets/clips/grid_and_fit.optimum.png",
+      "refinement": "assets/clips/grid_and_fit.refinement.png",
+      "result": "assets/clips/grid_and_fit.result.png",
+      "slow_candidates": "assets/clips/grid_and_fit.slow_candidates.png"
+    },
+    "duration": 20.0,
+    "end": {
+      "frame": 599,
+      "pts": 19.966667,
+      "still": "assets/clips/grid_and_fit.f0599.png"
+    },
+    "format": 2,
+    "fps": 30.0,
+    "frames": 600,
+    "height": 720,
+    "job": {
+      "cache_key": "sha256:14bd51cb41a3a996da5929afb8bf13ace779d398fa40c999824b021bd1f1cbde",
+      "id": "job_20261113T152647_d3094c",
+      "registry_version": "0.5.0",
+      "style": "lecturekit_paper@0.1.0"
+    },
+    "poster": "assets/clips/grid_and_fit.f0000.png",
+    "producer": "manim8",
+    "revision": "working",
+    "sha256": "f460d0842095c954127e8fe9795e2933a33571b24b1e90501871216a5a1e4ebc",
+    "source": "clips/families/population_receptive_fields/grid_and_fit",
+    "still": "assets/clips/grid_and_fit.result.png",
+    "stops": [],
+    "video": "assets/clips/grid_and_fit.mp4",
+    "width": 1280
+  },
+  "model_as_chain": {
+    "checkpoints": {
+      "dots_travel": "assets/clips/model_as_chain.dots_travel.png",
+      "drawing": "assets/clips/model_as_chain.drawing.png",
+      "loop": "assets/clips/model_as_chain.loop.png",
+      "open": "assets/clips/model_as_chain.open.png",
+      "prediction": "assets/clips/model_as_chain.prediction.png",
+      "pulse": "assets/clips/model_as_chain.pulse.png",
+      "pulse_in_transformation": "assets/clips/model_as_chain.pulse_in_transformation.png",
+      "shrink": "assets/clips/model_as_chain.shrink.png",
+      "study": "assets/clips/model_as_chain.study.png",
+      "tags": "assets/clips/model_as_chain.tags.png"
+    },
+    "duration": 15.5,
+    "end": {
+      "frame": 464,
+      "pts": 15.464388,
+      "still": "assets/clips/model_as_chain.f0464.png"
+    },
+    "format": 2,
+    "fps": 30.0,
+    "frames": 465,
+    "height": 720,
+    "job": {
+      "cache_key": "sha256:50f776e2a0d9066982e5c83fc5f41c43a7aba5ce59da6b41947c953cc30c01eb",
+      "id": "job_20261113T144725_c414f9",
+      "registry_version": "0.5.0",
+      "style": "lecturekit_paper@0.1.0"
+    },
+    "poster": "assets/clips/model_as_chain.f0000.png",
+    "producer": "manim8",
+    "revision": "working",
+    "sha256": "5e9d9b0a84754db97d4f6d90ed870348bf95bdb5bdbd44e21a48d0d357817763",
+    "source": "clips/families/population_receptive_fields/model_as_chain",
+    "still": "assets/clips/model_as_chain.study.png",
+    "stops": [],
+    "video": "assets/clips/model_as_chain.mp4",
+    "width": 1280
+  },
+  "stimulus_to_bold": {
+    "checkpoints": {
+      "bar_on_prf": "assets/clips/stimulus_to_bold.bar_on_prf.png",
+      "bold_follows": "assets/clips/stimulus_to_bold.bold_follows.png",
+      "diagonal_crossing": "assets/clips/stimulus_to_bold.diagonal_crossing.png",
+      "first_blank": "assets/clips/stimulus_to_bold.first_blank.png",
+      "layout": "assets/clips/stimulus_to_bold.layout.png",
+      "run_ends": "assets/clips/stimulus_to_bold.run_ends.png",
+      "run_starts": "assets/clips/stimulus_to_bold.run_starts.png",
+      "traces_complete": "assets/clips/stimulus_to_bold.traces_complete.png"
+    },
+    "duration": 12.0,
+    "end": {
+      "frame": 359,
+      "pts": 11.966341,
+      "still": "assets/clips/stimulus_to_bold.f0359.png"
+    },
+    "format": 2,
+    "fps": 30.0,
+    "frames": 360,
+    "height": 720,
+    "job": {
+      "cache_key": "sha256:c0c63305ca7c67a9613811e3acc43f8c8824a64e6886498515da28a2ac37c17d",
+      "id": "job_20261113T144723_17c276",
+      "registry_version": "0.5.0",
+      "style": "lecturekit_paper@0.1.0"
+    },
+    "poster": "assets/clips/stimulus_to_bold.f0000.png",
+    "producer": "manim8",
+    "revision": "working",
+    "sha256": "ae8695d6d9cd101a66a94ccae4f38ba78de5a6dcf80e4976691f4ea8a6e9b479",
+    "source": "clips/families/population_receptive_fields/stimulus_to_bold",
+    "still": "assets/clips/stimulus_to_bold.traces_complete.png",
+    "stops": [],
+    "video": "assets/clips/stimulus_to_bold.mp4",
+    "width": 1280
+  }
+}

@@ -1,0 +1,333 @@
+schema_version: '1.0'
+proposal:
+  schema_version: '1.0'
+  id: prop_storyboard
+  kind: create_storyboard
+  created_at: '2026-11-13T16:00:00+00:00'
+  author: agent:clip-fields_to_map
+  summary: 'One scene: 690 simulated voxels fitted one after another fill the field with dots and the sheet with
+    squares coloured by eccentricity; after a stop the colouring turns to polar angle.'
+  rationale: "The brief asks for one mechanism: a map appears on the sheet although every voxel is fitted on its
+    own. The scene shows the layout (the right half of the field with its meridian and fixation, the empty sheet,
+    their labels and the key line), then the voxels arrive in the order of the table's `order` column, each square
+    and its dot fading in together from small to full and coloured by the eccentricity of the fitted centre, at
+    an even pace, as in the original scene's LaggedStart (lag_ratio 0.012, linear overall). The clip rests on the
+    complete eccentricity map and holds there for the lecturer (the stop `eccentricity` at 12.9 s that animation.yaml
+    names), then every square and dot changes to the polar-angle colouring over 2.5 s while the key line changes,
+    and it holds to the end. The registry (0.5.0) has no kind that draws a half visual field, points at table positions
+    in it, or a sheet of squares from a table, and no action that staggers the members of one object or recolours
+    them by a column, so the field and the voxels are two `kind: custom` builders in code/prf_map.py; the labels
+    and the key line are the registered text_caption. Both motions are registered vary_parameter actions on one
+    ParametricComponent (`voxels`) that draws every square and every dot, so a square and its dot share their arrival
+    and their colour by construction (constraints order and two_colourings). Its parameters fits and recolour are
+    declared through the object's data binding as zero-window smooth transforms that leave the table as it is; the
+    builder refuses any other transform. Timing: the style reveals every object over 0.85 s from the scene start,
+    so the fits start at 0.85 s (fits_arrive at 0.6 s, tolerance 0.4 s) and end at 11.6 s, the original scene's
+    end of the arrivals; the map then rests 1.6 s (the original's rest) with the stop at 12.9 s, 1.3 s after the
+    last motion, and the recolouring and the key line's change start at 13.2 s, nine frames after the stop. The
+    fits run at linear speed because the pace of the fitting loop is the content (an even overall pace, as the timeline
+    asks); each voxel's own fade follows the style's easing. Colours are palette roles present in both bridged styles:
+    each colouring is a ramp through three roles ordered in lightness in both styles (eccentricity warning, normalization_pool,
+    dn; polar angle dog, comparison, concept), interpolated in CIELAB so that the order holds along the ramp. Geometry
+    follows the original scene (references/original_scene.py), mapped onto the frame by one scale."
+  based_on_revision: working
+  in_response_to: []
+  uncertainties:
+    - The style reveals each object with a 0.85 s fade from the scene start, so frame 0 is empty and the 
+      layout is complete at 0.85 s, whereas the hard milestone `layout` sits at 0 s and the original scene 
+      shows the layout from its first frame. In manim8 bad3ae1 every object is revealed by a fade that starts 
+      at ink 0, so no storyboard can show the layout on frame 0; a deck that starts the clip on a key shows 
+      frame 0 as its poster.
+    - No four palette roles present in both bridged styles are ordered in lightness in both (the dark style's 
+      roles lie between L* 69 and 80), so each ramp has three roles. The original's eccentricity ramp 
+      (warning, ochre, teal, blue) loses its blue end, and the polar-angle ramp (orange, purple, teal) becomes
+      ochre (dog), purple (comparison), blue (concept).
+    - Ten fitted centres lie beyond 6.5 deg and twenty just left of the vertical meridian (x_fit_deg down to 
+      -0.282); they are drawn where the table puts them, outside the semicircle, as in the original scene. The
+      eccentricity colouring takes its last colour above 6.5 deg.
+    - The labels and the key line use the style's body text (34 px at 1080p) at the safe area's anchors (top 
+      left, top right, bottom centre); the original placed them by hand, a little larger and closer to the 
+      drawing.
+  claims:
+    - statement: Each voxel's dot is drawn at (x_fit_deg, y_fit_deg) in a field of radius 6.5 deg, and its 
+        square at (sheet_u, sheet_v) on a grid of step 0.085.
+      source_id: voxels
+      locator: columns x_fit_deg, y_fit_deg, sheet_u, sheet_v; 690 rows
+      basis: source
+    - statement: Voxels appear in the order of the 'order' column, which runs across the sheet from one edge 
+        to the other.
+      source_id: voxels
+      locator: column order (0 to 689, the row order; sorted by sheet_u + 0.02 sheet_v)
+      basis: source
+    - statement: The first colouring maps eccentricity_deg from 0 to 6.5 deg onto one ordered ramp, the second
+        polar_angle_deg from +90 to -90 deg onto another.
+      source_id: voxels
+      locator: columns eccentricity_deg, polar_angle_deg
+      basis: source
+    - statement: The voxels are simulated on a model sheet and fitted with prfmodel; they are not 
+        measurements.
+      source_id: voxels
+      locator: citation
+      basis: source
+    - statement: Layout, sizes and timing (field centre, radius 2.8 for 6.5 deg, sheet height 5.6, squares at 
+        0.94 of the step, dot radius 0.05, arrivals over 11 s with lag_ratio 0.012, a 2.5 s recolouring) 
+        follow the hand-written scene.
+      source_id: original_scene
+      locator: MapFallsOut.construct
+      basis: source
+  targets:
+    - file: storyboard.yaml
+      document:
+        schema_version: '1.0'
+        project_id: fields_to_map
+        based_on_animation_revision: working
+        scenes:
+          - id: map
+            start_seconds: 0
+            end_seconds: 18
+            purpose: Voxels fitted one at a time put a dot at each fitted pRF centre in the right half of the 
+              visual field and colour each voxel's square on the sheet by that centre's distance from 
+              fixation; bands form across the sheet although no fit knows its neighbours. After a rest the 
+              same squares and dots take the colour of the centre's direction from fixation and the bands run 
+              the other way. The voxels object's parameters fits and recolour are declared as zero-window 
+              smooth transforms of its binding, which leave the table unchanged (manim8 declares a custom 
+              object's parameters only there).
+            patterns:
+              - linked_views
+            objects:
+              - id: visual_field
+                kind: custom
+                params:
+                  builder: prf_map:visual_field
+                  arguments:
+                    page:
+                      original_frame_height: 9
+                      offset:
+                        - 0
+                        - 0
+                    field:
+                      centre:
+                        - -6.3
+                        - -0.1
+                      radius: 2.8
+                      radius_deg: 6.5
+                      fixation_half_length: 0.1
+                    roles:
+                      outline: grid
+                      meridian: grid
+                      fixation: secondary_text
+                    weights_px_at_1080p:
+                      outline: 2.4
+                      meridian: 2.4
+                      fixation: 2.4
+              - id: voxels
+                kind: custom
+                data:
+                  source: voxels
+                  encoding:
+                    x: x_fit_deg
+                    y: y_fit_deg
+                  transforms:
+                    - op: smooth
+                      column: order
+                      window:
+                        parameter: fits
+                        default: 0
+                    - op: smooth
+                      column: order
+                      window:
+                        parameter: recolour
+                        default: 0
+                params:
+                  builder: prf_map:voxel_fits
+                  arguments:
+                    field: visual_field
+                    columns:
+                      order: order
+                      sheet_u: sheet_u
+                      sheet_v: sheet_v
+                    sheet:
+                      centre_x: 3.9
+                      centre_y: -0.1
+                      height: 5.6
+                      step: 0.085
+                      fill: 0.94
+                    dot_radius_px_at_1080p: 6
+                    arrival:
+                      lag_ratio: 0.012
+                      start_scale: 0.3
+                    colourings:
+                      - id: eccentricity
+                        column: eccentricity_deg
+                        from: 0
+                        to: 6.5
+                        ramp:
+                          - warning
+                          - normalization_pool
+                          - dn
+                      - id: polar_angle
+                        column: polar_angle_deg
+                        from: 90
+                        to: -90
+                        ramp:
+                          - dog
+                          - comparison
+                          - concept
+              - id: field_label
+                kind: text_caption
+                style_role: secondary_text
+                params:
+                  text: 'the visual field: fitted pRF centres'
+                  anchor: top_left
+                  role: body
+              - id: sheet_label
+                kind: text_caption
+                style_role: secondary_text
+                params:
+                  text: 'a sheet of cortex: one square per voxel'
+                  anchor: top_right
+                  role: body
+              - id: key_distance
+                kind: text_caption
+                style_role: foreground
+                params:
+                  text: 'colour: distance from fixation'
+                  anchor: bottom_center
+                  role: body
+              - id: key_direction
+                kind: text_caption
+                style_role: foreground
+                reveal_at_seconds: 13.2
+                params:
+                  text: 'colour: direction from fixation'
+                  anchor: bottom_center
+                  role: body
+            actions:
+              - id: fits_run
+                kind: vary_parameter
+                target: voxels
+                parameter: fits
+                to: 1
+                at_seconds: 0.85
+                duration_seconds: 10.75
+                easing: linear
+                show_value: false
+              - id: key_change
+                kind: fade_object
+                target: key_distance
+                visible: false
+                at_seconds: 13.2
+                duration_seconds: 0.85
+              - id: recolour_run
+                kind: vary_parameter
+                target: voxels
+                parameter: recolour
+                to: 1
+                at_seconds: 13.2
+                duration_seconds: 2.5
+                show_value: false
+            snapshots:
+              - id: layout
+                at_seconds: 0.85
+                description: "The layout, complete and still empty: left, the right half of the visual field (semicircle,
+                  vertical meridian, fixation cross) labelled 'the visual field: fitted pRF centres'; right, the
+                  empty sheet labelled 'a sheet of cortex: one square per voxel'; the key line 'colour: distance
+                  from fixation' below. No dot and no square yet."
+              - id: first_fits
+                at_seconds: 2.5
+                description: "The first fits: about 35 voxels at full size at the sheet's left edge, the next 80
+                  or so still growing and fading in, each square with its dot in the field in the same colour of
+                  eccentricity."
+              - id: fits_arrive
+                at_seconds: 6.2
+                description: 'Half of the 690 voxels fitted, in order across the sheet: the left half of the sheet
+                  is filled, the field holds their dots, and bands of eccentricity colour already run across the
+                  filled part of the sheet.'
+              - id: eccentricity
+                at_seconds: 12.9
+                stop: true
+                label: coloured by eccentricity
+                description: "The complete eccentricity map, at rest: 690 dots in the field and 690 squares on the
+                  sheet, coloured from fixation (0 deg) to 6.5 deg; the bands of colour run across the sheet. Key
+                  line: 'colour: distance from fixation'."
+              - id: polar_angle
+                at_seconds: 14.45
+                description: "Half-way through the recolouring: every square and dot between its eccentricity colour
+                  and its polar-angle colour, no position changed; the key line already reads 'colour: direction
+                  from fixation'."
+              - id: direction_map
+                at_seconds: 17.5
+                description: "The end state and study still: the same 690 dots and squares coloured by polar angle,
+                  from the upper vertical meridian (+90 deg) to the lower (-90 deg); the bands now run the other
+                  way across the sheet. Key line: 'colour: direction from fixation'."
+  touches_science: true
+applied_at: '2026-11-13T15:03:45+00:00'
+applied_to_revision: working
+diffs:
+  storyboard.yaml: "--- a/storyboard.yaml\n+++ b/storyboard.yaml\n@@ -0,0 +1,179 @@\n+schema_version: '1.0'\n+project_id:
+    fields_to_map\n+based_on_animation_revision: working\n+scenes:\n+  - id: map\n+    start_seconds: 0\n+    end_seconds:
+    18\n+    purpose: Voxels fitted one at a time put a dot at each fitted pRF centre in the right half of the visual\
+    \ \n+      field and colour each voxel's square on the sheet by that centre's distance from fixation; bands
+    form \n+      across the sheet although no fit knows its neighbours. After a rest the same squares and dots
+    take the \n+      colour of the centre's direction from fixation and the bands run the other way. The voxels
+    object's \n+      parameters fits and recolour are declared as zero-window smooth transforms of its binding,
+    which leave \n+      the table unchanged (manim8 declares a custom object's parameters only there).\n+    patterns:\n\
+    +      - linked_views\n+    objects:\n+      - id: visual_field\n+        kind: custom\n+        params:\n+\
+    \          builder: prf_map:visual_field\n+          arguments:\n+            page:\n+              original_frame_height:
+    9\n+              offset:\n+                - 0\n+                - 0\n+            field:\n+              centre:\n\
+    +                - -6.3\n+                - -0.1\n+              radius: 2.8\n+              radius_deg: 6.5\n\
+    +              fixation_half_length: 0.1\n+            roles:\n+              outline: grid\n+             \
+    \ meridian: grid\n+              fixation: secondary_text\n+            weights_px_at_1080p:\n+            \
+    \  outline: 2.4\n+              meridian: 2.4\n+              fixation: 2.4\n+      - id: voxels\n+        kind:
+    custom\n+        data:\n+          source: voxels\n+          encoding:\n+            x: x_fit_deg\n+      \
+    \      y: y_fit_deg\n+          transforms:\n+            - op: smooth\n+              column: order\n+    \
+    \          window:\n+                parameter: fits\n+                default: 0\n+            - op: smooth\n\
+    +              column: order\n+              window:\n+                parameter: recolour\n+              \
+    \  default: 0\n+        params:\n+          builder: prf_map:voxel_fits\n+          arguments:\n+          \
+    \  field: visual_field\n+            columns:\n+              order: order\n+              sheet_u: sheet_u\n\
+    +              sheet_v: sheet_v\n+            sheet:\n+              centre_x: 3.9\n+              centre_y:
+    -0.1\n+              height: 5.6\n+              step: 0.085\n+              fill: 0.94\n+            dot_radius_px_at_1080p:
+    6\n+            arrival:\n+              lag_ratio: 0.012\n+              start_scale: 0.3\n+            colourings:\n\
+    +              - id: eccentricity\n+                column: eccentricity_deg\n+                from: 0\n+  \
+    \              to: 6.5\n+                ramp:\n+                  - warning\n+                  - normalization_pool\n\
+    +                  - dn\n+              - id: polar_angle\n+                column: polar_angle_deg\n+     \
+    \           from: 90\n+                to: -90\n+                ramp:\n+                  - dog\n+        \
+    \          - comparison\n+                  - concept\n+      - id: field_label\n+        kind: text_caption\n\
+    +        style_role: secondary_text\n+        params:\n+          text: 'the visual field: fitted pRF centres'\n\
+    +          anchor: top_left\n+          role: body\n+      - id: sheet_label\n+        kind: text_caption\n\
+    +        style_role: secondary_text\n+        params:\n+          text: 'a sheet of cortex: one square per voxel'\n\
+    +          anchor: top_right\n+          role: body\n+      - id: key_distance\n+        kind: text_caption\n\
+    +        style_role: foreground\n+        params:\n+          text: 'colour: distance from fixation'\n+    \
+    \      anchor: bottom_center\n+          role: body\n+      - id: key_direction\n+        kind: text_caption\n\
+    +        style_role: foreground\n+        reveal_at_seconds: 13.2\n+        params:\n+          text: 'colour:
+    direction from fixation'\n+          anchor: bottom_center\n+          role: body\n+    actions:\n+      - id:
+    fits_run\n+        kind: vary_parameter\n+        target: voxels\n+        parameter: fits\n+        to: 1\n\
+    +        at_seconds: 0.85\n+        duration_seconds: 10.75\n+        easing: linear\n+        show_value: false\n\
+    +      - id: key_change\n+        kind: fade_object\n+        target: key_distance\n+        visible: false\n\
+    +        at_seconds: 13.2\n+        duration_seconds: 0.85\n+      - id: recolour_run\n+        kind: vary_parameter\n\
+    +        target: voxels\n+        parameter: recolour\n+        to: 1\n+        at_seconds: 13.2\n+        duration_seconds:
+    2.5\n+        show_value: false\n+    snapshots:\n+      - id: layout\n+        at_seconds: 0.85\n+        description:
+    \"The layout, complete and still empty: left, the right half of the visual field (semicircle,\n+          vertical
+    meridian, fixation cross) labelled 'the visual field: fitted pRF centres'; right, the empty sheet\n+       \
+    \   labelled 'a sheet of cortex: one square per voxel'; the key line 'colour: distance from fixation' below.\n\
+    +          No dot and no square yet.\"\n+      - id: first_fits\n+        at_seconds: 2.5\n+        description:
+    \"The first fits: about 35 voxels at full size at the sheet's left edge, the next 80 or so still\n+        \
+    \  growing and fading in, each square with its dot in the field in the same colour of eccentricity.\"\n+   \
+    \   - id: fits_arrive\n+        at_seconds: 6.2\n+        description: 'Half of the 690 voxels fitted, in order
+    across the sheet: the left half of the sheet is filled,\n+          the field holds their dots, and bands of
+    eccentricity colour already run across the filled part of the\n+          sheet.'\n+      - id: eccentricity\n\
+    +        at_seconds: 12.9\n+        stop: true\n+        label: coloured by eccentricity\n+        description:
+    \"The complete eccentricity map, at rest: 690 dots in the field and 690 squares on the sheet,\n+          coloured
+    from fixation (0 deg) to 6.5 deg; the bands of colour run across the sheet. Key line: 'colour:\n+          distance
+    from fixation'.\"\n+      - id: polar_angle\n+        at_seconds: 14.45\n+        description: \"Half-way through
+    the recolouring: every square and dot between its eccentricity colour and\n+          its polar-angle colour,
+    no position changed; the key line already reads 'colour: direction from fixation'.\"\n+      - id: direction_map\n\
+    +        at_seconds: 17.5\n+        description: \"The end state and study still: the same 690 dots and squares
+    coloured by polar angle, from\n+          the upper vertical meridian (+90 deg) to the lower (-90 deg); the
+    bands now run the other way across the\n+          sheet. Key line: 'colour: direction from fixation'.\""
+scientific_review_required: true
+validation_warnings:
+  - "action 'fits_run' moves at constant speed from its first frame to its last (easing: linear); the style asks
+    for slow in, slow out: omit `easing` to use `smooth`, or keep linear only for a motion that should read as mechanical"
+  - scene 'map' names pattern 'linked_views' but uses none of its components (function_plot, surface_plot, 
+    function_image)

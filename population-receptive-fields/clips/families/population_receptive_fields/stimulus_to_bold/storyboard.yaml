@@ -1,0 +1,183 @@
+schema_version: '1.0'
+project_id: stimulus_to_bold
+based_on_animation_revision: working
+scenes:
+  - id: one_run
+    start_seconds: 0
+    end_seconds: 12
+    purpose: "One run of the bar through the field drives the predicted neural and BOLD traces on one clock: the
+      bar crosses the pRF, the neural trace rises at once, the BOLD trace follows about 5 s later, smoother, and
+      dips below zero after each pair of sweeps. The run object's parameters t and marks are declared as zero-window
+      smooth transforms of its binding, which leave the table unchanged (manim8 declares a custom object's parameters
+      only there)."
+    patterns:
+      - let_time_run
+      - linked_views
+    objects:
+      - id: visual_field
+        kind: custom
+        params:
+          builder: stim_bold:visual_field
+          arguments:
+            radius_deg: 8
+            prf:
+              x_deg: 2.5
+              y_deg: 1.5
+              sigma_deg: 1.0
+            weights_px_at_1080p:
+              outline: 3.6
+              prf: 3.6
+              fixation: 3.1
+      - id: response_rows
+        kind: custom
+        params:
+          builder: stim_bold:response_rows
+          arguments:
+            time_range:
+              - 0
+              - 300
+            time_ticks:
+              - 0
+              - 100
+              - 200
+              - 300
+            time_label: time (s)
+            time_axis_under: bold
+            rows:
+              - id: neural
+                label: predicted neural
+                value_range:
+                  - -0.05
+                  - 0.75
+                ticks:
+                  - 0
+                  - 0.5
+              - id: bold
+                label: predicted BOLD
+                value_range:
+                  - -0.3
+                  - 0.9
+                ticks:
+                  - 0
+                  - 0.5
+            weights_px_at_1080p:
+              axis: 1.9
+              zero_line: 2.4
+      - id: stimulus_strip
+        kind: custom
+        data:
+          source: run
+          encoding:
+            x: t_s
+            y: bar_direction_deg
+        params:
+          builder: stim_bold:stimulus_strip
+          arguments:
+            rows: response_rows
+            bar_centre_column: bar_centre_deg
+            label: stimulus
+            weights_px_at_1080p:
+              arrow: 3.2
+      - id: run
+        kind: custom
+        data:
+          source: run
+          encoding:
+            x: t_s
+            y: neural
+          transforms:
+            - op: smooth
+              column: t_s
+              window:
+                parameter: t
+                default: 0
+            - op: smooth
+              column: t_s
+              window:
+                parameter: marks
+                default: 0
+        params:
+          builder: stim_bold:run
+          arguments:
+            field: visual_field
+            rows: response_rows
+            strip: stimulus_strip
+            columns:
+              time: t_s
+              bar_centre: bar_centre_deg
+              bar_direction: bar_direction_deg
+            traces:
+              neural:
+                column: neural
+                row: neural
+                weight_px_at_1080p: 4.8
+              bold:
+                column: bold
+                row: bold
+                weight_px_at_1080p: 7.2
+            bar_width_deg: 2
+            cursor_to: bold
+            cursor_opacity: 0.6
+            dot_radius_px_at_1080p: 9
+            weights_px_at_1080p:
+              cursor: 2.4
+    actions:
+      - id: clock
+        kind: vary_parameter
+        target: run
+        parameter: t
+        to: 300
+        at_seconds: 1.0
+        duration_seconds: 10.0
+        easing: linear
+        show_value: false
+      - id: marks_on
+        kind: vary_parameter
+        target: run
+        parameter: marks
+        to: 1
+        at_seconds: 1.0
+        duration_seconds: 0.2
+        show_value: false
+      - id: marks_off
+        kind: vary_parameter
+        target: run
+        parameter: marks
+        to: 0
+        at_seconds: 11.0
+        duration_seconds: 0.35
+        show_value: false
+    snapshots:
+      - id: layout
+        at_seconds: 1.0
+        description: "The layout, complete once the style's reveal has ended: the field with the pRF circle and
+          the fixation cross at the left; the stimulus strip (four grey blocks of two sweep bands, an arrow in each)
+          and the empty neural and BOLD rows with their axes at the right. No bar, cursor or dot yet."
+      - id: run_starts
+        at_seconds: 1.2
+        description: '6 s into the run: the cursor has started at the left of the rows, the bar enters the field
+          from the left moving rightward, a dot sits on each trace at zero.'
+      - id: bar_on_prf
+        at_seconds: 1.6
+        description: '18 s into the run: the rightward bar covers the pRF; the neural trace rises towards its first
+          peak (0.65 at the cursor) while the BOLD trace has barely left zero.'
+      - id: bold_follows
+        at_seconds: 1.8
+        description: '24 s into the run: the bar has passed the pRF and the neural trace is back near zero, while
+          the BOLD trace reaches its first peak (0.80), about 5 s after the neural peak.'
+      - id: first_blank
+        at_seconds: 3.0
+        description: "60 s into the run, the first blank: no bar in the field, the strip's first block has ended;
+          the BOLD trace has peaked twice and dipped below zero after the second peak."
+      - id: diagonal_crossing
+        at_seconds: 6.6
+        description: '168 s into the run: the bar moving up and to the right (45 deg) covers the pRF; the neural
+          trace rises for the fifth time; four BOLD responses and two undershoots are drawn.'
+      - id: run_ends
+        at_seconds: 11.0
+        description: 'The cursor at 300 s, the end of the time axis, before it fades: both traces complete, the
+          run ends in a blank so the field shows no bar.'
+      - id: traces_complete
+        at_seconds: 11.9
+        description: 'The end state and study still: the field with the pRF and fixation, the strip, and the complete
+          predicted neural and BOLD traces; no cursor, dots or bar.'

@@ -1,0 +1,104 @@
+schema_version: "1.0"
+id: stimulus_to_bold
+title: "From stimulus to predicted BOLD signal"
+sources:
+  - id: run
+    type: csv
+    path: data/run.csv
+    role: illustrative_data
+    citation: "Simulated with prfmodel (Gaussian2DPRFModel, two-gamma HRF): a pRF at (2.5, 1.5) deg, sigma 1 deg, on a 300 s bar run. Not a measurement."
+  - id: brief
+    type: markdown
+    path: references/brief.md
+    role: explanatory_text
+  - id: original_scene
+    type: text
+    path: references/original_scene.py
+    role: composition_reference
+    citation: "The hand-written Manim scene of the Coimbra pRF workshop (6 November 2026); read for geometry, do not run."
+  - id: last_frame
+    type: image
+    path: references/last_frame.jpg
+    role: target_keyframe
+output:
+  duration_seconds: 12
+  width_px: 1280
+  height_px: 720
+  aspect_ratio: "16:9"
+  fps: 30
+  container: mp4
+  video_codec: h264
+  audio: none
+style:
+  name: lecturekit_paper
+  version: "0.1.0"
+  overrides: {}
+equations:
+  - id: neural_response
+    typst: "r(t) = sum_(x, y) G(x, y) S(x, y, t)"
+    latex: "r(t) = \\sum_{x, y} G(x, y)\\, S(x, y, t)"
+    symbols:
+      r: {meaning: "predicted neural response: the overlap of stimulus and pRF"}
+      G: {meaning: "Gaussian pRF, centre (2.5, 1.5) deg, sigma 1 deg"}
+      S: {meaning: "stimulus aperture: 1 where the bar is, 0 elsewhere"}
+      t: {meaning: "time", units: "s"}
+  - id: bold_response
+    typst: "B(t) = (h * r)(t)"
+    latex: "B(t) = (h * r)(t)"
+    symbols:
+      B: {meaning: "predicted BOLD response"}
+      h: {meaning: "haemodynamic response function"}
+      r: {meaning: "predicted neural response"}
+audience: "visitors of a lab website with a science background"
+objective: >-
+  One cursor runs through a 300 s bar-mapping run. In the visual field the bar moves over a fixed pRF
+  outline; beside it three rows share the time axis: the stimulus as a strip of sweeps, the predicted
+  neural response, and the predicted BOLD response. The viewer sees the neural trace rise each time the
+  bar crosses the pRF, and the BOLD trace follow about 5 s later, smoother, with an undershoot in every blank.
+scientific_constraints:
+  - id: data_exact
+    kind: hard
+    text: "Plot neural and bold exactly as in run.csv, one value per second, linearly interpolated; do not rescale one against the other (each row has its own axis: neural -0.05 to 0.75, BOLD -0.3 to 0.9)."
+  - id: bar_from_data
+    kind: hard
+    text: "The bar in the field is 2 deg wide, at bar_centre_deg along bar_direction_deg (counter-clockwise from rightward), clipped to a field of radius 8 deg; no bar in the blanks (empty cells)."
+  - id: one_clock
+    kind: hard
+    text: "The cursor, the bar and both traces share one clock that runs linearly through the 300 s; the traces are drawn only up to the cursor."
+  - id: prf_fixed
+    kind: hard
+    text: "The pRF outline (one-sigma circle at (2.5, 1.5) deg, radius 1 deg) never moves or changes."
+  - id: prediction_not_measurement
+    kind: hard
+    text: "Any label calls the traces predicted; nothing in the clip presents them as measured data."
+  - id: equations_not_drawn
+    kind: preferred
+    text: "The two equations define the rows; the original does not draw them, the page carries them."
+timeline:
+  - id: layout
+    at_seconds: 0
+    tolerance_seconds: 0
+    kind: hard
+    instruction: "Field with pRF outline and fixation at the left; the stimulus strip (a band per sweep with an arrow for its direction) and the empty neural and BOLD panels with axes at the right."
+  - id: run_starts
+    at_seconds: 0.75
+    tolerance_seconds: 0.25
+    kind: preferred
+    instruction: "The cursor starts; the bar appears in the field; a dot rides each trace at the cursor."
+  - id: run_ends
+    at_seconds: 10.75
+    tolerance_seconds: 0.5
+    kind: preferred
+    instruction: "The cursor reaches 300 s and fades; both traces stay complete until the end."
+direction:
+  tone: "Plain, precise, unhurried"
+  avoid:
+    - "Titles or captions inside the clip"
+    - "Easing of the cursor: the run plays at constant speed"
+  prefer:
+    - "Colour by role only: pRF outline, labels and arrows in foreground; both traces and their dots in primary_signal; bar and sweep bands in neutral; axes in muted; zero lines in grid"
+    - "Identical geometry and timing under the light and the dark style"
+extensions:
+  website:
+    themes: [light, dark]
+    poster: last_frame

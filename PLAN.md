@@ -171,7 +171,7 @@ to add when manim8 needs a showcase outside neuroscience.
   lecturekit's `main` instead, so a breaking change is seen before a release. Moving the pin is one commit: the engine commit,
   `python tools/vendor_extension.py`, and the decks rebuilt.
 - Each project has its own `_brand.yml` and `_brand-dark.yml`; a project builds in the dark preset where its
-  `expo.yaml` declares `dark` (signal detection today), and the continuous build then builds and checks both.
+  `expo.yaml` declares `dark` (signal detection and population receptive fields today), and the continuous build then builds and checks both.
 - A project's manim8 workspace is `clips/`, with the styles bridged from its brands as versions
   (`clips/styles/lecturekit_paper/0.1.0/style.yaml` and `lecturekit_dark`, written by `lk theme --manim8` and
   selected in each `animation.yaml` through a manim8 proposal), and a family whose render environment takes manim8
