@@ -32,7 +32,8 @@ output:
 style:
   name: lecturekit_paper
   version: "0.1.0"
-  overrides: {}
+  overrides:
+    motion.reveal_seconds: 0.1
 equations:
   - id: neural_response
     typst: "r(t) = sum_(x, y) G(x, y) S(x, y, t)"

@@ -279,6 +279,9 @@ def response_rows(
     line = tokens.line_kwargs()
     axis_w, zero_w = _weight(tokens, arguments, "axis"), _weight(tokens, arguments, "zero_line")
     muted, grid, ink = tokens.color("muted"), tokens.color("grid"), tokens.color("foreground")
+    # strokes in muted, as direction.prefer asks; their numbers and the time label in secondary_text, the text
+    # role that reaches 4.5:1 on both pages (muted is about 3:1 for text)
+    words = tokens.color("secondary_text")
     tick_face, label_face = tokens.typeface("tick_label"), tokens.typeface("axis_label")
     tick_gap = pg.length(ORIGINAL["tick_gap"])
     group = VGroup()
@@ -292,7 +295,7 @@ def response_rows(
         group.add(Line(row(t0, 0.0), row(t1, 0.0), stroke_color=grid, stroke_width=zero_w, **line))
         group.add(Line(row(t0, y0), row(t0, y1), stroke_color=muted, stroke_width=axis_w, **line))
         for v in spec["ticks"]:
-            tick = Text(f"{float(v):g}", **tokens.text_kwargs(tick_face, muted))
+            tick = Text(f"{float(v):g}", **tokens.text_kwargs(tick_face, words))
             group.add(tick.next_to(row(t0, float(v)), LEFT, buff=tick_gap))
         label = Text(spec["label"], **tokens.text_kwargs(label_face, ink)).rotate(PI / 2)
         label.move_to([float(pg.pt(ORIGINAL["row_label_x"], 0.0)[0]), row.bottom + row.height / 2, 0.0])
@@ -300,9 +303,9 @@ def response_rows(
     base = rows[arguments["time_axis_under"]]
     group.add(Line(base(t0, base.y0), base(t1, base.y0), stroke_color=muted, stroke_width=axis_w, **line))
     for v in arguments["time_ticks"]:
-        tick = Text(f"{float(v):g}", **tokens.text_kwargs(tick_face, muted))
+        tick = Text(f"{float(v):g}", **tokens.text_kwargs(tick_face, words))
         group.add(tick.next_to(base(float(v), base.y0), DOWN, buff=tick_gap))
-    title = Text(arguments["time_label"], **tokens.text_kwargs(label_face, muted))
+    title = Text(arguments["time_label"], **tokens.text_kwargs(label_face, words))
     group.add(title.next_to(base((t0 + t1) / 2, base.y0), DOWN, buff=pg.length(ORIGINAL["time_label_gap"])))
     component = Component(
         object_id, "custom", group, font_px=tokens.smallest_text_px("tick_label", "axis_label")

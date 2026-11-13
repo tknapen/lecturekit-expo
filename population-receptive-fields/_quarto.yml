@@ -14,6 +14,9 @@ format:
     output-file: slides-live.html
   lecturekit-beamer:
     output-file: slides-study.pdf
+    # links in the brand's input colour: Pandoc's own \hypersetup sets urlcolor=Blue after the engine's, which is
+    # 2.4:1 on the dark page; nmInput is the preset's input colour, 9.3:1 on black and 5.2:1 on white
+    urlcolor: nmInput
 
 brand: _brand.yml
 

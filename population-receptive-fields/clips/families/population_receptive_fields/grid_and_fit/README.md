@@ -2,7 +2,7 @@
 
 A manim8 project of the population-receptive-fields talk: a Gaussian pRF fitted to one measured voxel, in two
 stages. 20 s at 1280 by 720 and 30 fps (`animation.yaml`), rendered under `lecturekit_paper@0.1.0` and
-`lecturekit_dark@0.1.0` with identical geometry, timing and frame count (600 frames). It plays through: no stops.
+`lecturekit_dark@0.1.1` (`lecturekit_dark@0.1.0` before the review lifted its quiet roles) with identical geometry, timing and frame count (600 frames). It plays through: no stops.
 
 ## What the clip shows
 
@@ -34,7 +34,8 @@ rests show it.
 
 Colours are palette roles present in both bridged styles: the measured trace, its label and the fit line in
 `foreground`; the candidate, its prediction and the readouts in `primary_signal`; the headings, the dashed
-outline, the fixation cross, the scale bar and the axes in `muted`; tick and axis labels in `secondary_text`; the
+outline, the fixation cross, the scale bar and the axes in `muted`; tick and axis labels and the scale bar's
+label in `secondary_text`; the
 field outline in `hairline` (see below). No title, caption or equation is drawn beyond the labels the brief names.
 
 ## How it is built, and the rung on the ladder
@@ -153,14 +154,15 @@ latest, `result`, is the study still. Frames are 0-based movie frames, the same 
 
 - **Sign-off.** The storyboard proposals add data bindings and are marked `touches_science`; the builders in
   `code/grid_fit.py` are code to review.
-- **Field outline role.** `direction.prefer` names `grid` for the field outline, but `grid` is `#151515` on the
-  dark page (about 1.1 to 1) and nearly invisible; the outline uses `hairline`, the role of the original's `HAIR`,
+- **Field outline role.** `direction.prefer` names `grid` for the field outline, but `grid` was `#151515` on the
+  dark page under `lecturekit_dark@0.1.0` (about 1.1 to 1) and nearly invisible (`#282828` under 0.1.1); the outline uses `hairline`, the role of the original's `HAIR`,
   present in both styles.
-- **Label inks.** Tick and axis labels take `secondary_text` rather than the original's muted grey, so they read on
-  the dark page (`muted` is about 3.5 to 1 there). The headings and the dashed outline keep `muted`, as the
+- **Label inks.** Tick and axis labels, and the scale bar's "2°", take `secondary_text` rather than the original's
+  muted grey (5.99 to 1 on paper, 7.72 on black), so they read on both pages (`muted` is 3.07 to 1 on paper). The headings and the dashed outline keep `muted`, as the
   direction asks; on the dark page they are quiet but legible.
 - **Frame 0.** manim8 reveals every object at a scene's start over the style's reveal time, so frame 0 is the page
-  colour and the layout of the hard milestone `layout` (0 s) is complete at 0.85 s.
+  colour and the layout of the hard milestone `layout` (0 s) is complete at 0.85 s. This misses a hard milestone, and manim8 bad3ae1 cannot meet it: every object gets a reveal from alpha 0 at the scene start (`src/scianim/codegen/generate.py`: `begins = scene.start_seconds if obj.reveal_at_seconds is None ...`) and `motion.reveal_seconds` must be greater than 0 (`scianim_core/style.py`: `reveal_seconds: float = Field(gt=0)`). It is a deviation that waits on the lecturer's decision (the deck's README, log). The
+  0.85 s stays here: the heading change and the fit line are later reveals of the same length.
 - **Heading change.** It takes the style's reveal time, 0.85 s (the original's took 0.5 s), so the refinement steps
   start at 12.7 s (timeline 12.3 s, tolerance 0.7 s) and the fit line at 17.0 s (timeline 16.7 s). The two headings
   cross-fade in place.

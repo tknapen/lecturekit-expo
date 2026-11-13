@@ -177,7 +177,8 @@ def visual_field(
         **ends,
     )
     tick_face = tokens.typeface("tick_label")
-    bar_label = Text(f"{bar_deg:g}°", **tokens.text_kwargs(tick_face, bar_colour))
+    # the bar in its role (muted); its label in secondary_text, like the axes' numbers, for 4.5:1 on both pages
+    bar_label = Text(f"{bar_deg:g}°", **tokens.text_kwargs(tick_face, tokens.color("secondary_text")))
     bar_label.next_to(bar, DOWN, buff=pg.length(ORIGINAL["scale_bar_label_gap"]))
     group = VGroup(outline, fixation, bar, bar_label)
     component = Component(

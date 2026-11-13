@@ -10,14 +10,15 @@ minutes: 15
 field: vision, neuroimaging methods
 deck: talk
 sources:
-- "the lecturer's four pRF clip seeds (sources/prf-clips, with the data and the original hand-written Manim scenes
-  of the Coimbra pRF workshop and the lecture of 18 November 2026)"
+- "the lecturer's four pRF clip seeds: the bundle's README and briefs in sources/prf-clips; the data and the
+  original hand-written Manim scenes (of the Coimbra pRF workshop and the lecture of 18 November 2026) in each
+  manim8 project under clips/families/population_receptive_fields/"
 - "prfmodel, which simulated stimulus_to_bold's run (Gaussian 2D pRF, two-gamma HRF) and fitted fields_to_map's
   simulated voxels and grid_and_fit's candidates"
 - "7t-aot-visual, prfmodel's example dataset, sub-003 (Knapen 2026, figshare, CC BY 4.0), the measured voxel of
   grid_and_fit"
-device: a claim per slide, shown by a clip that stands alone; a pause on the complete eccentricity map for the room
-  to predict the second colouring
+device: a claim per slide, shown by a clip that stands alone; a pause (by the presenter, until the engine holds it)
+  on the complete eccentricity map for the room to predict the second colouring
 clips:
 - stimulus_to_bold
 - model_as_chain

@@ -10,7 +10,7 @@ color:
     ink: "#E6F4EA"        # emphasis: green-tinted white
     body: "#8FD8B0"       # running text
     muted: "#6FA98A"
-    hairline: "#2A2A2A"
+    hairline: "#505050"   # rules, and through the manim8 bridge the clips' neutral, grid and muted (2.6:1 on black)
     heading: "#C9B6F2"    # titles and the default eyebrow
     concept: "#8FB8E8"
     caveat: "#F08C83"

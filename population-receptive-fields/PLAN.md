@@ -8,8 +8,8 @@ The build prints the same table from the `time=` attributes; keep them equal.
 | 1 | title | - | Population receptive fields, from stimulus to map | the title slide, from the front matter |
 | 2 | concept | 3.5 | Stimulus and pRF predict BOLD | clip `stimulus_to_bold`; study still `traces_complete`; data simulated with prfmodel |
 | 3 | concept | 3.5 | A model is a chain of stages | clip `model_as_chain`; study still `study`; data synthetic |
-| 4 | example | 4 | Grid search, then refinement | clip `grid_and_fit`; study still `result`; one measured voxel (7t-aot-visual, CC BY 4.0) |
-| 5 | concept | 4 | A map from independent fits | clip `fields_to_map`; study strip `eccentricity` and `end`; data simulated |
+| 4 | example | 4 | Fits keep the best candidate | clip `grid_and_fit`; study still `result`; one measured voxel (7t-aot-visual, CC BY 4.0) |
+| 5 | concept | 4 | Independent fits make a map | clip `fields_to_map`; study strip `eccentricity` and `end`; data simulated |
 | 6 | explanation | - | References | `references.bib`: prfmodel, 7t-aot-visual |
 
 Total: 15 of 15 minutes. The four titles are drafts of the claims the briefs make, for the lecturer to review.
@@ -18,11 +18,12 @@ Total: 15 of 15 minutes. The four titles are drafts of the claims the briefs mak
 
 All four are manim8 projects in `clips/families/population_receptive_fields/`, rendered by `lk clips` (paper) and
 `lk clips --mode dark` into `assets/clips/` and `assets/clips/dark/`, 1280 by 720 at 30 fps, in the bridged styles
-`lecturekit_paper@0.1.0` and `lecturekit_dark@0.1.0`. Each project's `README.md` has the evidence for its rung.
+`lecturekit_paper@0.1.0` and `lecturekit_dark@0.1.1` (the dark style's quiet roles lifted after review; README.md,
+log). Each project's `README.md` has the evidence for its rung.
 
 | Clip | Length | Frames | Rung | Kinds and motion | Stops |
 | --- | --- | --- | --- | --- | --- |
-| `stimulus_to_bold` | 12 s | 360 | R5 builder objects | 4 `custom` objects (4 builders); one `ParametricComponent` driven by three registered `vary_parameter` actions (the parametric route) | none |
+| `stimulus_to_bold` | 12 s | 360 | R5 builder objects | 4 `custom` objects (4 builders); one `ParametricComponent` driven by three registered `vary_parameter` actions (the parametric route); the project override `motion.reveal_seconds: 0.1` | none |
 | `model_as_chain` | 15.5 s | 465 | R5 builder objects | 16 `custom` objects (10 builders); seven `vary_parameter` and one `fade_object`, all registered | none |
 | `grid_and_fit` | 20 s | 600 | R5 builder objects | 6 `custom` objects (5 builders); 64 registered `vary_parameter` (63 hops and the kept outline's removal) and one `fade_object` | none |
 | `fields_to_map` | 18 s | 540 | R5 builder objects | 2 `custom` objects (2 builders) and 4 `text_caption`; two registered `vary_parameter` and one `fade_object` | `eccentricity`, 12.9 s, frame 387 (`stop: true`), not held on the slide yet |
@@ -33,7 +34,8 @@ calls fragile; it is recorded in each project's README.
 
 ## Decisions
 
-- The lecturer's decisions of 13 November 2026 (`SESSION.md`): a new project with a talk deck, one clip per slide;
+- The decisions of 13 November 2026, which came with the session's task, not from the lecturer's prompt
+  (`SESSION.md`), and are open for the lecturer to confirm: a new project with a talk deck, one clip per slide;
   1280 by 720 at 30 fps; the two bridged styles; the only key-press stop is `fields_to_map`'s hold at 12.9 s.
 - The hold is not on the slide yet. lecturekit 0.4.0 measures 0 frames of unchanged picture before it (the stop's
   frame is a fresh keyframe whose re-coding differs from the still frames before it by 7 to 8 grey levels, against a
@@ -42,6 +44,37 @@ calls fragile; it is recorded in each project's README.
   (`study="eccentricity end"`). When the engine accepts the stop, the slide becomes
   `::: {.movie clip="fields_to_map" stops="eccentricity" study=strip}` with the prompt in `:::: {.stop ref="eccentricity"}`,
   and `time=` stays 4 (18 s of clip and one prompt).
+- Until then the continuous build is red: `tools/check_clips.py` exits 1 on this stop in both presets, and the
+  build job (which needs the clips job) is skipped for every project. Do not push or merge this project until one
+  of two things happens. (a) lecturekit gets a rest measure that tolerates a keyframe's re-coding (or a higher
+  encoder quality for clips with stops), is released, and the pin in `requirements.txt` moves with
+  `python tools/vendor_extension.py`; the slide then becomes the movie with `stops=` above. (b) The lecturer drops
+  `stop: true` through a manim8 proposal. Dropping the stop alone does not make the build green: slide 5's
+  `study="eccentricity end"` names `eccentricity` as a stop candidate of `clips.json`, and without the stop
+  `lk build --strict` refuses it ("study= names "eccentricity", which is no hold of the clip with a still"). So the
+  slide must change with it, to `::: {.movie clip="fields_to_map" still="eccentricity" height=4.5cm}`: the
+  checkpoint `eccentricity` stays a still id; a trial of that slide with the stop emptied from `clips.json` built
+  with `--strict` and no overfull frame.
 - No goals or takeaways slide: the deck is a talk in four clips, as asked. Nothing was moved to study-only pages.
-- Open: the four titles; the dataset's figshare DOI for `references.bib`; the clips' builder code and storyboard
-  proposals, which need the lecturer's scientific sign-off in manim8.
+- Open for the lecturer:
+  - the four titles, drafts of the briefs' claims (slides 4 and 5 redrafted after review: they were "Grid search,
+    then refinement" and "A map from independent fits", which name stages rather than state claims); and the deck's
+    title, which sets on three lines on the paper title page with "MAP" alone (`lk review shoot` flags slide 1 in
+    both presets): a title that breaks into two balanced lines of about 20 capitals is wanted;
+  - the decisions the session applied without the lecturer's word (`SESSION.md`): 1280 by 720 at 30 fps, the two
+    bridged styles, the one stop, one clip per slide;
+  - the hard milestones at 0 s, which no clip meets (frame 0 is the empty page; README.md, log): accept the
+    deviation, or wait for manim8 to allow an object present from the first frame;
+  - `model_as_chain`: the BOLD box shows the prediction from 5.5 s and loses it in one frame when the pulse starts
+    (9.3 s), as `references/original_scene.py` does, where the brief puts the prediction last. Moving the action
+    `clear_bold_prediction` from 9.3 s to 5.5 s would keep the box to the data until `draw_prediction` at 12.5 s;
+    it departs from the original scene, so it waits for the lecturer;
+  - `model_as_chain`: the HRF glyph is a canonical two-gamma shape (shapes 6 and 16, undershoot at a sixth) that the
+    builder drew without data, since `original_layout.py` took it from `l2model`, not in the bundle. Either the
+    lecturer accepts it as an illustrative, non-data glyph, or the lecture's kernel goes into `data/` as a column
+    and the glyph draws it;
+  - the dark style `lecturekit_dark@0.1.1` (manim8: a style change is a new version the person accepts), and the
+    one dark weakness it does not reach: the `selection` fill of `model_as_chain`'s boxes and funnel is 1.08:1 on
+    black, because the bridge mixes it as 8 per cent of `input` over the page in both presets;
+  - the dataset's figshare DOI for `references.bib`;
+  - the clips' builder code and storyboard proposals, which need the lecturer's scientific sign-off in manim8.

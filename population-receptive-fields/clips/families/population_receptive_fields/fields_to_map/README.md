@@ -1,7 +1,7 @@
 # fields_to_map: from fitted receptive fields to a map
 
 A manim8 project of the population-receptive-fields deck: 18 s at 1280 by 720 and 30 fps, rendered under the
-bridged styles `lecturekit_paper@0.1.0` and `lecturekit_dark@0.1.0`. Built from the lecturer's seed
+bridged styles `lecturekit_paper@0.1.0` and `lecturekit_dark@0.1.1` (`lecturekit_dark@0.1.0` before the review lifted its quiet roles). Built from the lecturer's seed
 (`animation.yaml`, `references/`, `data/`); the storyboard and the builders are new.
 
 ## What the clip shows
@@ -82,7 +82,7 @@ nearer end's colour (eccentricities above 6.5 deg take the last colour).
 | direction from fixation | `polar_angle_deg`, +90 to -90 | dog, comparison, concept | 54.7, 41.5, 37.1 | 80.2, 77.5, 73.5 | 3.79 (paper), 10.19 (dark) |
 
 No ramp passes through the page colour (the soft roles and the background are not used). The field outline and
-meridian are `hairline` (contrast 1.75 on paper, 1.46 on black), labels `secondary_text`, the key line
+meridian are `hairline` (contrast 1.75 on paper; 2.6 on black under `lecturekit_dark@0.1.1`, 1.46 under 0.1.0), labels `secondary_text`, the key line
 `foreground`, fixation `secondary_text`. Dots take the style's page-coloured rim.
 
 ## Snapshots
@@ -130,6 +130,8 @@ clip): constraint `simulation_label` asks the slide or page to say so.
 
 - Frame 0 is empty: the style reveals every object with a 0.85 s fade from the scene start, so the hard milestone
   `layout` (0 s) is reached at 0.85 s. A deck that starts this clip on a key shows frame 0 as its poster.
+  This misses a hard milestone, and manim8 bad3ae1 cannot meet it: every object gets a reveal from alpha 0 at the scene start (`src/scianim/codegen/generate.py`: `begins = scene.start_seconds if obj.reveal_at_seconds is None ...`) and `motion.reveal_seconds` must be greater than 0 (`scianim_core/style.py`: `reveal_seconds: float = Field(gt=0)`). It is a deviation that waits on the lecturer's decision (the deck's README, log). The 0.85 s stays here: the key line's cross-fade at 13.2 s is a reveal and a fade of the
+  same length.
 - The ramps differ from the original's (three roles instead of four; the polar-angle ramp ends in blue, not teal),
   because no four roles are ordered in lightness in both styles. They borrow the deck's `dn` and `dog` tokens.
 - Ten fitted centres lie beyond 6.5 deg and twenty just left of the meridian; they are drawn where the table puts
@@ -157,6 +159,6 @@ clip): constraint `simulation_label` asks the slide or page to say so.
 ```bash
 export FONTCONFIG_FILE=<deck>/_lecturekit/fonts.conf   # the deck's faces, as lk clips renders
 scianim validate <project> && scianim codegen <project>
-scianim snapshot <project> --all --profile final --style lecturekit_paper@0.1.0   # and lecturekit_dark@0.1.0
-scianim render <project> --profile final --style lecturekit_paper@0.1.0 --json      # and lecturekit_dark@0.1.0
+scianim snapshot <project> --all --profile final --style lecturekit_paper@0.1.0   # and lecturekit_dark@0.1.1
+scianim render <project> --profile final --style lecturekit_paper@0.1.0 --json      # and lecturekit_dark@0.1.1
 ```

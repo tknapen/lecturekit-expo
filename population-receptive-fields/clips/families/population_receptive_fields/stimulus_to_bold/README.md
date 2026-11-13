@@ -1,8 +1,8 @@
 # From stimulus to predicted BOLD signal (`stimulus_to_bold`)
 
 A manim8 project of the population-receptive-fields talk: one voxel, one bar-mapping run, one cursor. 12 s at
-1280 by 720 and 30 fps (`animation.yaml`), rendered under `lecturekit_paper@0.1.0` and `lecturekit_dark@0.1.0`
-with identical geometry, timing and frame count. It plays through: no stops.
+1280 by 720 and 30 fps (`animation.yaml`), rendered under `lecturekit_paper@0.1.0` and `lecturekit_dark@0.1.1` (`lecturekit_dark@0.1.0` before the
+review lifted its quiet roles) with identical geometry, timing and frame count. It plays through: no stops.
 
 ## What the clip shows
 
@@ -17,8 +17,8 @@ sweeps. The cursor fades at the end and the clip rests on the complete traces.
 
 | Clip time | Run time | What happens |
 | --- | --- | --- |
-| 0 to 0.85 s | | the style's reveal: every object fades in from an empty first frame |
-| 0.85 to 1.0 s | | rest on the layout |
+| 0 to 0.1 s | | the reveal, shortened by the project override `motion.reveal_seconds: 0.1`: every object fades in from an empty first frame, complete at frame 3 |
+| 0.1 to 1.0 s | | rest on the layout |
 | 1.0 s | 0 s | the clock starts; the bar, the cursor and the dots fade in over 0.2 s |
 | 1.0 to 11.0 s | 0 to 300 s | the run at constant speed, one second of the run per frame |
 | 11.0 to 11.35 s | 300 s | the cursor and its dots fade |
@@ -83,7 +83,8 @@ Patterns named: `let_time_run` and `linked_views` (one clock driving the field a
 
 Colour by palette role only, every role present in both bridged styles, as `direction.prefer` asks: pRF circle,
 labels and arrows in `foreground`; traces and dots in `primary_signal`; bar and sweep bands in `neutral`; axes,
-ticks, the fixation cross, the cursor and "time (s)" in `muted`; zero lines in `grid`; the field's edge in
+ticks, the fixation cross and the cursor in `muted`; the tick numbers and "time (s)" in `secondary_text` (5.99 to 1
+on paper, 7.72 on black; `muted` is 3.07 to 1 on paper, too little for small text); zero lines in `grid`; the field's edge in
 `hairline` (the original scene's colour for it) over a `background` fill. Text takes the styles' roles:
 `axis_label` for the row labels and "time (s)", `tick_label` for the ticks. The dots take the style's rim.
 
@@ -138,18 +139,28 @@ with one direction and a rising centre, as the original scene's `bar_at` and `sw
 
 ## Left for the lecturer
 
-- Frame 0 is empty and the layout is complete at 0.85 s, because the styles reveal every object over 0.85 s; the
-  timeline's hard milestone `layout` sits at 0 s and the original shows the layout from its first frame. A
-  project override `motion.reveal_seconds` in `animation.yaml` (an allowed one) would shorten the fade; the
-  `layout` snapshot sits at 1.0 s, when the clock starts. The run therefore starts at 1.0 s and ends at 11.0 s
-  (timeline 0.75 s and 10.75 s, within their tolerances).
+- Frame 0 is empty: the timeline's hard milestone `layout` sits at 0 s with tolerance 0, and the original shows
+  the layout from its first frame, but manim8 bad3ae1 reveals every object from alpha 0 at the scene start
+  (`src/scianim/codegen/generate.py`: `begins = scene.start_seconds if obj.reveal_at_seconds is None ...`) and
+  `motion.reveal_seconds` must be greater than 0 (`scianim_core/style.py`: `reveal_seconds: float = Field(gt=0)`).
+  The project override `motion.reveal_seconds: 0.1` in `animation.yaml` (proposal `prop_quick_reveal`, an allowed
+  override, the same under both styles) completes the layout at frame 3 instead of 0.85 s; this clip has no later
+  reveal it could change. The deviation from the hard milestone, frame 0 and 0.1 s, waits on the lecturer's decision.
+  `scianim propose apply` rewrote the whole file in its own layout (its record's diff shows that), which left
+  `aspect_ratio: 16:9` unquoted, a number (969) to a YAML 1.1 reader; `animation.yaml` was put back in the seed's
+  layout with only the override added, which `scianim validate .` accepts as the same document.
+  The `layout` snapshot sits at 1.0 s, when the clock starts; the run starts at 1.0 s and ends at 11.0 s (timeline
+  0.75 s and 10.75 s, within their tolerances).
 - The row labels read "predicted neural" and "predicted BOLD", where the original reads "neural" and "BOLD",
   because constraint `prediction_not_measurement` asks any label to call the traces predicted.
 - Text is about three quarters of the original's size relative to the drawing: the styles' text roles (axis
   label 30 px, tick label 26 px at 1080p, from `default@0.5.0`) are smaller than the original scene's type. A
   larger size would be a new style version for all clips, not a change here.
-- The zero lines are in `grid`, as `direction.prefer` asks; under `lecturekit_dark@0.1.0` that is #151515 on a
-  black page, and the lines are only just visible. `hairline` (the original's colour) would show them better.
+- The zero lines are in `grid`, as `direction.prefer` asks. Under `lecturekit_dark@0.1.0` that was #151515 on a
+  black page (1.15 to 1), and the lines, the reference for the BOLD undershoots, were only just visible; the bar
+  (`neutral`, #2A2A2A) was 1.46 to 1. `lecturekit_dark@0.1.1` lifts `grid` to #282828 and `neutral` to #505050
+  (1.42 and 2.6 to 1); paper is unchanged (1.30 and 1.75). `hairline` (the original's colour) would show the zero
+  lines more, in both presets.
 - The cursor's fade is 0.35 s (0.4 s in the original), so that it ends before the style's closing 0.65 s.
 
 ## Reproduce
@@ -158,7 +169,7 @@ with one direction and a rising centre, as the original scene's `bar_at` and `sw
 scianim validate .
 scianim codegen .
 scianim snapshot . --all --profile final --style lecturekit_paper@0.1.0
-scianim snapshot . --all --profile final --style lecturekit_dark@0.1.0
+scianim snapshot . --all --profile final --style lecturekit_dark@0.1.1
 scianim render . --profile final --style lecturekit_paper@0.1.0
-scianim render . --profile final --style lecturekit_dark@0.1.0
+scianim render . --profile final --style lecturekit_dark@0.1.1
 ```

@@ -1,0 +1,117 @@
+schema_version: '1.0'
+proposal:
+  schema_version: '1.0'
+  id: prop_quick_reveal
+  kind: revise_spec
+  created_at: '2026-11-13T18:00:00+00:00'
+  author: agent:fixer
+  summary: Reveal the layout over 0.1 s instead of the style's 0.85 s, so it stands complete from frame 3.
+  rationale: "The timeline's hard milestone `layout` sits at 0 s with tolerance 0, and the original scene shows
+    the layout from its first frame. manim8 bad3ae1 reveals every object from alpha 0 at the scene start over the
+    style's `motion.reveal_seconds`, which must be greater than 0 (scianim_core/style.py: `reveal_seconds: float
+    = Field(gt=0)`), so the milestone cannot be met exactly: frame 0 stays the page colour. A project override of
+    `motion.reveal_seconds` (on manim8's allowlist for a project) brings the complete layout from 0.85 s to 0.1
+    s. This clip reveals nothing after the scene start (the bar, the cursor and the dots enter through `marks_on`,
+    a `vary_parameter` with its own 0.2 s), so no later fade changes; the clock still starts at 1.0 s and ends at
+    11.0 s. The override is the project's own, so it applies under both bridged styles alike: geometry, timing and
+    frame count stay identical under paper and dark. Answers the uncertainty of prop_storyboard on the reveal."
+  based_on_revision: working
+  in_response_to: []
+  uncertainties:
+    - 'Frame 0 is still the empty page: the hard milestone `layout` at 0 s is missed by 0.1 s rather than 0.85 s.
+      The lecturer decides whether that deviation is accepted.'
+  claims: []
+  targets:
+    - file: animation.yaml
+      patch:
+        - op: replace
+          path: /style/overrides
+          value:
+            motion.reveal_seconds: 0.1
+  touches_science: false
+applied_at: '2026-11-13T16:35:24+00:00'
+applied_to_revision: working
+diffs:
+  animation.yaml: "--- a/animation.yaml\n+++ b/animation.yaml\n@@ -1,12 +1,13 @@\n-schema_version: \"1.0\"\n+schema_version:
+    '1.0'\n id: stimulus_to_bold\n-title: \"From stimulus to predicted BOLD signal\"\n+title: From stimulus to predicted
+    BOLD signal\n sources:\n   - id: run\n     type: csv\n     path: data/run.csv\n     role: illustrative_data\n\
+    -    citation: \"Simulated with prfmodel (Gaussian2DPRFModel, two-gamma HRF): a pRF at (2.5, 1.5) deg, sigma
+    1 deg, on a 300 s bar run. Not a measurement.\"\n+    citation: 'Simulated with prfmodel (Gaussian2DPRFModel,
+    two-gamma HRF): a pRF at (2.5, 1.5) deg, sigma 1 deg,\n+      on a 300 s bar run. Not a measurement.'\n   -
+    id: brief\n     type: markdown\n     path: references/brief.md\n@@ -15,7 +16,8 @@\n     type: text\n     path:
+    references/original_scene.py\n     role: composition_reference\n-    citation: \"The hand-written Manim scene
+    of the Coimbra pRF workshop (6 November 2026); read for geometry, do not run.\"\n+    citation: The hand-written
+    Manim scene of the Coimbra pRF workshop (6 November 2026); read for geometry, \n+      do not run.\n   - id:
+    last_frame\n     type: image\n     path: references/last_frame.jpg\n@@ -24,81 +26,96 @@\n   duration_seconds:
+    12\n   width_px: 1280\n   height_px: 720\n-  aspect_ratio: \"16:9\"\n+  aspect_ratio: 16:9\n   fps: 30\n   container:
+    mp4\n   video_codec: h264\n   audio: none\n style:\n   name: lecturekit_paper\n-  version: \"0.1.0\"\n-  overrides:
+    {}\n+  version: 0.1.0\n+  overrides:\n+    motion.reveal_seconds: 0.1\n equations:\n   - id: neural_response\n\
+    -    typst: \"r(t) = sum_(x, y) G(x, y) S(x, y, t)\"\n-    latex: \"r(t) = \\\\sum_{x, y} G(x, y)\\\\, S(x,
+    y, t)\"\n+    typst: r(t) = sum_(x, y) G(x, y) S(x, y, t)\n+    latex: r(t) = \\sum_{x, y} G(x, y)\\, S(x, y,
+    t)\n     symbols:\n-      r: {meaning: \"predicted neural response: the overlap of stimulus and pRF\"}\n-  \
+    \    G: {meaning: \"Gaussian pRF, centre (2.5, 1.5) deg, sigma 1 deg\"}\n-      S: {meaning: \"stimulus aperture:
+    1 where the bar is, 0 elsewhere\"}\n-      t: {meaning: \"time\", units: \"s\"}\n+      r:\n+        meaning:
+    'predicted neural response: the overlap of stimulus and pRF'\n+      G:\n+        meaning: Gaussian pRF, centre
+    (2.5, 1.5) deg, sigma 1 deg\n+      S:\n+        meaning: 'stimulus aperture: 1 where the bar is, 0 elsewhere'\n\
+    +      t:\n+        meaning: time\n+        units: s\n   - id: bold_response\n-    typst: \"B(t) = (h * r)(t)\"\
+    \n-    latex: \"B(t) = (h * r)(t)\"\n+    typst: B(t) = (h * r)(t)\n+    latex: B(t) = (h * r)(t)\n     symbols:\n\
+    -      B: {meaning: \"predicted BOLD response\"}\n-      h: {meaning: \"haemodynamic response function\"}\n\
+    -      r: {meaning: \"predicted neural response\"}\n-audience: \"visitors of a lab website with a science background\"\
+    \n-objective: >-\n-  One cursor runs through a 300 s bar-mapping run. In the visual field the bar moves over
+    a fixed pRF\n-  outline; beside it three rows share the time axis: the stimulus as a strip of sweeps, the predicted\n\
+    -  neural response, and the predicted BOLD response. The viewer sees the neural trace rise each time the\n-\
+    \  bar crosses the pRF, and the BOLD trace follow about 5 s later, smoother, with an undershoot in every blank.\n\
+    +      B:\n+        meaning: predicted BOLD response\n+      h:\n+        meaning: haemodynamic response function\n\
+    +      r:\n+        meaning: predicted neural response\n+audience: visitors of a lab website with a science
+    background\n+objective: 'One cursor runs through a 300 s bar-mapping run. In the visual field the bar moves
+    over a fixed pRF\n+  outline; beside it three rows share the time axis: the stimulus as a strip of sweeps, the
+    predicted neural response,\n+  and the predicted BOLD response. The viewer sees the neural trace rise each time
+    the bar crosses the pRF, and\n+  the BOLD trace follow about 5 s later, smoother, with an undershoot in every
+    blank.'\n scientific_constraints:\n   - id: data_exact\n     kind: hard\n-    text: \"Plot neural and bold exactly
+    as in run.csv, one value per second, linearly interpolated; do not rescale one against the other (each row has
+    its own axis: neural -0.05 to 0.75, BOLD -0.3 to 0.9).\"\n+    text: 'Plot neural and bold exactly as in run.csv,
+    one value per second, linearly interpolated; do not rescale\n+      one against the other (each row has its
+    own axis: neural -0.05 to 0.75, BOLD -0.3 to 0.9).'\n   - id: bar_from_data\n     kind: hard\n-    text: \"\
+    The bar in the field is 2 deg wide, at bar_centre_deg along bar_direction_deg (counter-clockwise from rightward),
+    clipped to a field of radius 8 deg; no bar in the blanks (empty cells).\"\n+    text: The bar in the field is
+    2 deg wide, at bar_centre_deg along bar_direction_deg (counter-clockwise \n+      from rightward), clipped to
+    a field of radius 8 deg; no bar in the blanks (empty cells).\n   - id: one_clock\n     kind: hard\n-    text:
+    \"The cursor, the bar and both traces share one clock that runs linearly through the 300 s; the traces are drawn
+    only up to the cursor.\"\n+    text: The cursor, the bar and both traces share one clock that runs linearly
+    through the 300 s; the traces\n+      are drawn only up to the cursor.\n   - id: prf_fixed\n     kind: hard\n\
+    -    text: \"The pRF outline (one-sigma circle at (2.5, 1.5) deg, radius 1 deg) never moves or changes.\"\n\
+    +    text: The pRF outline (one-sigma circle at (2.5, 1.5) deg, radius 1 deg) never moves or changes.\n   -
+    id: prediction_not_measurement\n     kind: hard\n-    text: \"Any label calls the traces predicted; nothing
+    in the clip presents them as measured data.\"\n+    text: Any label calls the traces predicted; nothing in the
+    clip presents them as measured data.\n   - id: equations_not_drawn\n     kind: preferred\n-    text: \"The two
+    equations define the rows; the original does not draw them, the page carries them.\"\n+    text: The two equations
+    define the rows; the original does not draw them, the page carries them.\n timeline:\n   - id: layout\n    \
+    \ at_seconds: 0\n     tolerance_seconds: 0\n     kind: hard\n-    instruction: \"Field with pRF outline and
+    fixation at the left; the stimulus strip (a band per sweep with an arrow for its direction) and the empty neural
+    and BOLD panels with axes at the right.\"\n+    instruction: Field with pRF outline and fixation at the left;
+    the stimulus strip (a band per sweep with an\n+      arrow for its direction) and the empty neural and BOLD
+    panels with axes at the right.\n   - id: run_starts\n     at_seconds: 0.75\n     tolerance_seconds: 0.25\n \
+    \    kind: preferred\n-    instruction: \"The cursor starts; the bar appears in the field; a dot rides each
+    trace at the cursor.\"\n+    instruction: The cursor starts; the bar appears in the field; a dot rides each
+    trace at the cursor.\n   - id: run_ends\n     at_seconds: 10.75\n     tolerance_seconds: 0.5\n     kind: preferred\n\
+    -    instruction: \"The cursor reaches 300 s and fades; both traces stay complete until the end.\"\n+    instruction:
+    The cursor reaches 300 s and fades; both traces stay complete until the end.\n direction:\n-  tone: \"Plain,
+    precise, unhurried\"\n+  tone: Plain, precise, unhurried\n   avoid:\n-    - \"Titles or captions inside the
+    clip\"\n-    - \"Easing of the cursor: the run plays at constant speed\"\n+    - Titles or captions inside the
+    clip\n+    - 'Easing of the cursor: the run plays at constant speed'\n   prefer:\n-    - \"Colour by role only:
+    pRF outline, labels and arrows in foreground; both traces and their dots in primary_signal; bar and sweep bands
+    in neutral; axes in muted; zero lines in grid\"\n-    - \"Identical geometry and timing under the light and
+    the dark style\"\n+    - 'Colour by role only: pRF outline, labels and arrows in foreground; both traces and
+    their dots in primary_signal;\n+      bar and sweep bands in neutral; axes in muted; zero lines in grid'\n+\
+    \    - Identical geometry and timing under the light and the dark style\n extensions:\n   website:\n-    themes:
+    [light, dark]\n+    themes:\n+      - light\n+      - dark\n     poster: last_frame"
+scientific_review_required: false
+validation_warnings:
+  - "action 'clock' moves at constant speed from its first frame to its last (easing: linear); the style asks for
+    slow in, slow out: omit `easing` to use `smooth`, or keep linear only for a motion that should read as mechanical"
+  - "action 'marks_off' moves 'run' 0.00s after 'clock' has finished; the style asks for a rest of 0.5s so the end
+    state is seen before it changes again: start it later or lengthen its lead-in"
+  - scene 'one_run' names pattern 'let_time_run' but uses none of its components (surface_plot, function_plot,
+    function_image)
+  - scene 'one_run' names pattern 'linked_views' but uses none of its components (function_plot, surface_plot,
+    function_image)

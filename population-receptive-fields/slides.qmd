@@ -13,7 +13,7 @@ citation-size: small
 ## Stimulus and pRF predict BOLD {role=concept time=3.5}
 
 ::: {.movie clip="stimulus_to_bold" height=4.5cm}
-Simulated with prfmodel [@prfmodel]: one pRF, one 300 s bar run. Not a measurement.
+Simulated with prfmodel [-@prfmodel]: one pRF, one 300 s bar run. Not a measurement.
 :::
 
 ::: notes
@@ -36,7 +36,7 @@ Say: the loop first: parameters and a stimulus feed a model, whose prediction is
 Status: [SIM] synthetic: the Gaussian pRF voxel's predicted BOLD for the first 150 s of the bar run, normalised to a peak of 1, and the same plus Gaussian noise (SD 0.12), clips/families/population_receptive_fields/model_as_chain/data/panel.csv; title drafted from the brief, for the lecturer to review.
 :::
 
-## Grid search, then refinement {role=example time=4}
+## Fits keep the best candidate {role=example time=4}
 
 ::: {.movie clip="grid_and_fit" height=4.5cm}
 One measured voxel: 7t-aot-visual, sub-003 [@knapen2026aot], CC BY 4.0. The predictions are the model's.
@@ -49,10 +49,10 @@ Say: left, the visual field out to 4 degrees; the candidate is a centre and a on
 Status: [DATA] the measured voxel is prfmodel's example dataset 7t-aot-visual, sub-003 (Knapen 2026, figshare, CC BY 4.0); the 64 candidates and their predictions were fitted with prfmodel, clips/families/population_receptive_fields/grid_and_fit/data/; title drafted from the brief, for the lecturer to review.
 :::
 
-## A map from independent fits {role=concept time=4}
+## Independent fits make a map {role=concept time=4}
 
 ::: {.movie clip="fields_to_map" study="eccentricity end"}
-690 simulated voxels, each fitted on its own with prfmodel [@prfmodel]. Not measurements.
+690 simulated voxels, each fitted on its own with prfmodel [-@prfmodel]. Not measurements.
 :::
 
 ::: notes

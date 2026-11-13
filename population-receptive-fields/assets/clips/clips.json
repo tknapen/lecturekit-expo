@@ -67,15 +67,15 @@
     "frames": 600,
     "height": 720,
     "job": {
-      "cache_key": "sha256:14bd51cb41a3a996da5929afb8bf13ace779d398fa40c999824b021bd1f1cbde",
-      "id": "job_20261113T152647_d3094c",
+      "cache_key": "sha256:d7b293c5374a438f2a5c2930285066bd39946bb10ffd3ecdbc5917d02b51fb8c",
+      "id": "job_20261113T163736_2e8ebc",
       "registry_version": "0.5.0",
       "style": "lecturekit_paper@0.1.0"
     },
     "poster": "assets/clips/grid_and_fit.f0000.png",
     "producer": "manim8",
     "revision": "working",
-    "sha256": "f460d0842095c954127e8fe9795e2933a33571b24b1e90501871216a5a1e4ebc",
+    "sha256": "a9e4c8906e4d4a1433ea3122c15ff36f38f4435048081f8ef392da7ec9a807c3",
     "source": "clips/families/population_receptive_fields/grid_and_fit",
     "still": "assets/clips/grid_and_fit.result.png",
     "stops": [],
@@ -135,7 +135,7 @@
     "duration": 12.0,
     "end": {
       "frame": 359,
-      "pts": 11.966341,
+      "pts": 11.966667,
       "still": "assets/clips/stimulus_to_bold.f0359.png"
     },
     "format": 2,
@@ -143,15 +143,15 @@
     "frames": 360,
     "height": 720,
     "job": {
-      "cache_key": "sha256:c0c63305ca7c67a9613811e3acc43f8c8824a64e6886498515da28a2ac37c17d",
-      "id": "job_20261113T144723_17c276",
+      "cache_key": "sha256:6ff7ac5696bba4c9124af83f9a7fc4c410186eec8ab92d195379560a18020f54",
+      "id": "job_20261113T164047_e407f0",
       "registry_version": "0.5.0",
       "style": "lecturekit_paper@0.1.0"
     },
     "poster": "assets/clips/stimulus_to_bold.f0000.png",
     "producer": "manim8",
     "revision": "working",
-    "sha256": "ae8695d6d9cd101a66a94ccae4f38ba78de5a6dcf80e4976691f4ea8a6e9b479",
+    "sha256": "b0bf463e16dc4ae90d8b8db7ac7183f02243b51bc1faa50250601debe5c0c4ee",
     "source": "clips/families/population_receptive_fields/stimulus_to_bold",
     "still": "assets/clips/stimulus_to_bold.traces_complete.png",
     "stops": [],
