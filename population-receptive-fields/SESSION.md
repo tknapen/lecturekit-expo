@@ -35,16 +35,19 @@ How the session went:
    (`scianim snapshot`, `scianim render`). All four reached rung R5 (builder objects, motion by registered
    `vary_parameter`); each project's README has the evidence.
 3. The integrator rendered the clips into the deck (`lk clips`, `lk clips --mode dark`), drafted the slides and the
-   planning files, and ran the checks. The hold at 12.9 s could not be put on the slide: lecturekit measures 0 frames
-   of unchanged picture before it (README.md, log), so the slide plays the clip through for now.
+   planning files, and ran the checks. The hold at 12.9 s could not be put on the slide: lecturekit 0.4.0 measured 0
+   frames of unchanged picture before it (README.md, log), so the slide played the clip through.
 4. Reviewers checked the clips and the deck against the seeds; a fixer agent made the changes their findings allowed
    without the lecturer and listed the rest (README.md, log; PLAN.md, open items): the dark style's quiet roles
    lifted (`lecturekit_dark@0.1.1`, from `_brand-dark.yml`), the small text of two clips in `secondary_text`, a
    0.1 s reveal in `stimulus_to_bold`, the study PDF's link colour, the captions' citation, two titles redrafted as
    claims, and the records (FACTS.md, expo.yaml, this file).
+5. The orchestrating session changed the engine: lecturekit 0.4.1 measures a keyframe's re-coding in a still rest
+   as no change of picture, and settles clips on their last frame in `lk review shoot`. The hold went on slide 5
+   (`stops="eccentricity" study=strip`), and the checks were run again in both presets (README.md, log).
 
 Changed by hand: nothing yet. Open for the lecturer: the decisions above; the four slide titles (drafts of the
-briefs' claims) and the deck's title, which sets on three lines on the paper title page; the hold at 12.9 s and the
+briefs' claims) and the deck's title, which sets on three lines on the paper title page; the hold at 12.9 s, now on slide 5, and the
 missed 0 s milestones (README.md, log); the BOLD box's prediction before the pulse in `model_as_chain`; the HRF glyph
 of `model_as_chain`, a schematic with no data; the dark style 0.1.1; the dataset's DOI; and the sign-off on each
 clip's storyboard proposals and builder code.

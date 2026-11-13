@@ -116,8 +116,8 @@ clip): constraint `simulation_label` asks the slide or page to say so.
   fitting is what the timeline asks; `linked_views` is named although the scene stages it with a custom builder).
 - Final renders, both styles: 1280 by 720, 30 fps, 18.000 s, 540 frames each; the stop at frame 387 with 39 still
   frames before and 9 after (manifest); frame 387 is a keyframe and equals the job's own still. lecturekit measures
-  the rests differently (integration, 13 November 2026): `lk clips` finds 0 frames of unchanged picture before the
-  stop in both styles, so a deck cannot hold it yet (below).
+  the rests on the pixels: 0.4.0 found 0 frames of unchanged picture before the stop in both styles (below); 0.4.1
+  finds 47 (paper) and 46 (dark), and the deck holds it.
 - Against the table, on the lossless checkpoints of both styles: 690 occupied cells on the sheet, exactly the
   table's cells; every square's colour matches its row's ramp colour (CIELAB difference at most 0.9); the colour at
   each of 489 unambiguous dot centres matches its voxel (at most 1.6); isolated dots sit within 0.1 px of their
@@ -142,16 +142,15 @@ clip): constraint `simulation_label` asks the slide or page to say so.
 - `scianim inspect` on the snapshot jobs reports `key_distance` missing at `polar_angle` and `direction_map`: it is
   faded out on purpose by `key_change`; the inspector does not read `fade_object` (on the video jobs it reports
   nothing).
-- The stop is not holdable in lecturekit 0.4.0 (found at integration, 13 November 2026). The picture is still from
+- The stop was not holdable in lecturekit 0.4.0 (found at integration, 13 November 2026; holdable from 0.4.1, whose
+  rest measure allows 16 levels, see the deck's README, log). The picture is still from
   11.6 s (manifest: 39 frames of rest), but frame 387 starts a new section, so Manim encodes it as a fresh H.264
   keyframe (CRF 23), and on this picture of 1380 small coloured marks the re-coding differs from the frames before
   it by up to 8 grey levels (paper) and 7 (dark) at lecturekit's measuring size (160 px wide), against its tolerance
   of 6. `lk clips` therefore records `rest_before: 0`, `lk build` refuses `stops="eccentricity"` and
   `tools/check_clips.py` reports the stop. Retiming within the timeline's tolerance does not cure it: a trial with
   the recolouring moved to 13.6 s and to 13.7 s (24 still frames after the stop) passed in paper (6) and failed in
-  dark (7). The fix belongs in the engine (a rest measure that tolerates a keyframe's re-coding, or a higher encoder
-  quality for clips with stops). Until then the deck plays this clip through and prints the stop's frame and the
-  end in the study PDF.
+  dark (7). The fix was the engine's: lecturekit 0.4.1 tolerates a keyframe's re-coding, and slide 5 holds the stop.
 - No revision has been created; nothing is approved.
 
 ## Reproduce

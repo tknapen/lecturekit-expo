@@ -51,15 +51,18 @@ Status: [DATA] the measured voxel is prfmodel's example dataset 7t-aot-visual, s
 
 ## Independent fits make a map {role=concept time=4}
 
-::: {.movie clip="fields_to_map" study="eccentricity end"}
+::: {.movie clip="fields_to_map" stops="eccentricity" study=strip}
 690 simulated voxels, each fitted on its own with prfmodel [-@prfmodel]. Not measurements.
+
+:::: {.stop ref="eccentricity"}
+Ask: coloured by the direction of each centre from fixation instead, which way will the bands run? (Across the first set: the bands now run the other way across the sheet.)
+::::
 :::
 
 ::: notes
 Line: a visual field map is not put in by the analysis: it appears when every voxel is fitted on its own and coloured by what its fit returned.
-Ask: pause with Space on the complete eccentricity map (12.9 s). Coloured by the direction of each centre from fixation instead, which way will the bands run? (Across the first set: the bands now run the other way across the sheet.)
 Say: left, the right half of the visual field; right, a sheet of cortex, one square per voxel. Each fit puts a dot at the fitted centre and colours the voxel's square by the centre's distance from fixation. No fit knows its neighbours, yet bands of colour form across the sheet: a map. Then every square and dot takes the colour of the centre's direction from fixation, and the bands run the other way. The voxels are simulated, on a model sheet of early visual cortex.
-Status: [SIM] simulation of 690 voxels, each simulated with noise on a bar run and fitted on its own with prfmodel, clips/families/population_receptive_fields/fields_to_map/data/voxels.csv. The key-press hold at 12.9 s (stop eccentricity) is not on the slide yet: lecturekit 0.4.0 measures 0 frames of rest before it (README.md, log of 13 November 2026). Title drafted from the brief, for the lecturer to review.
+Status: [SIM] simulation of 690 voxels, each simulated with noise on a bar run and fitted on its own with prfmodel, clips/families/population_receptive_fields/fields_to_map/data/voxels.csv. The clip holds on the complete eccentricity map at 12.9 s (stop eccentricity, frame 387) for the Ask; a key plays the recolouring. Title drafted from the brief, for the lecturer to review.
 :::
 
 ## References {.references .allowframebreaks role=explanation}

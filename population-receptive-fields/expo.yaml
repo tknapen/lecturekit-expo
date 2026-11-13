@@ -17,8 +17,8 @@ sources:
   simulated voxels and grid_and_fit's candidates"
 - "7t-aot-visual, prfmodel's example dataset, sub-003 (Knapen 2026, figshare, CC BY 4.0), the measured voxel of
   grid_and_fit"
-device: a claim per slide, shown by a clip that stands alone; a pause (by the presenter, until the engine holds it)
-  on the complete eccentricity map for the room to predict the second colouring
+device: a claim per slide, shown by a clip that stands alone; the last clip holds on the complete eccentricity map
+  while the room predicts the second colouring, and a key plays it
 clips:
 - stimulus_to_bold
 - model_as_chain

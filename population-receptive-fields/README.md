@@ -126,3 +126,13 @@ lk build population-receptive-fields --strict && lk build population-receptive-f
 - 2026-11-13: also engine-side: `lk review shoot` captures each slide about 0.1 s after entry, during the clips'
   fade-in, so the contact sheets show the clip slides nearly blank and the posters (`f0000.png`) are the empty page.
   The card links the study PDFs, which show each clip's still.
+- 2026-11-13: the hold is on the slide, with lecturekit 0.4.1. Its rest measure now counts two frames as one picture
+  when no grey level differs by more than 16 at 160 px (it was 6). Measured across the 143 keyframes that sit in a
+  still rest in the expo's and the feature deck's manim8 clips, a keyframe's re-coding differs from the frame before
+  it by 1 to 10 levels (10 on this project's maps); where something starts to move on a keyframe the difference was 62
+  or more. `lk clips` now records 47 frames of rest before `eccentricity` in paper and 46 in dark (manim8's manifest:
+  39 static frames; the other 7 or 8 are the end of the dots' eased arrival, within 16 levels of the stop's frame).
+  Slide 5 is `stops="eccentricity" study=strip` with the prompt on the hold; `tools/check_clips.py` passes (8
+  entries, 0 problems), and `lk review frags` holds frame 387 in both presets. The continuous build is no longer
+  blocked by this project. In the same release `lk review shoot` shoots every clip paused on its last frame, so the
+  contact sheets show the clips complete; the posters (`f0000.png`) are still the empty first frame.

@@ -38,8 +38,8 @@
         "label": "coloured by eccentricity",
         "notes": "The complete eccentricity map, at rest: 690 dots in the field and 690 squares on the sheet, coloured from fixation (0 deg) to 6.5 deg; the bands of colour run across the sheet. Key line: 'colour: distance from fixation'.",
         "pts": 12.9,
-        "rest_after": 0,
-        "rest_before": 0,
+        "rest_after": 18,
+        "rest_before": 47,
         "still": "assets/clips/fields_to_map.f0387.png"
       }
     ],

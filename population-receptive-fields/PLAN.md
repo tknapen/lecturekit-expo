@@ -26,7 +26,7 @@ log). Each project's `README.md` has the evidence for its rung.
 | `stimulus_to_bold` | 12 s | 360 | R5 builder objects | 4 `custom` objects (4 builders); one `ParametricComponent` driven by three registered `vary_parameter` actions (the parametric route); the project override `motion.reveal_seconds: 0.1` | none |
 | `model_as_chain` | 15.5 s | 465 | R5 builder objects | 16 `custom` objects (10 builders); seven `vary_parameter` and one `fade_object`, all registered | none |
 | `grid_and_fit` | 20 s | 600 | R5 builder objects | 6 `custom` objects (5 builders); 64 registered `vary_parameter` (63 hops and the kept outline's removal) and one `fade_object` | none |
-| `fields_to_map` | 18 s | 540 | R5 builder objects | 2 `custom` objects (2 builders) and 4 `text_caption`; two registered `vary_parameter` and one `fade_object` | `eccentricity`, 12.9 s, frame 387 (`stop: true`), not held on the slide yet |
+| `fields_to_map` | 18 s | 540 | R5 builder objects | 2 `custom` objects (2 builders) and 4 `text_caption`; two registered `vary_parameter` and one `fade_object` | `eccentricity`, 12.9 s, frame 387 (`stop: true`), held on slide 5 |
 
 No clip needed a custom action, a pinned scene or a kit scene (R6 to R8), so `anim/` holds no clip. The parametric
 route declares each builder's parameters through a zero-window data transform, the workaround the escalation plan
@@ -37,24 +37,13 @@ calls fragile; it is recorded in each project's README.
 - The decisions of 13 November 2026, which came with the session's task, not from the lecturer's prompt
   (`SESSION.md`), and are open for the lecturer to confirm: a new project with a talk deck, one clip per slide;
   1280 by 720 at 30 fps; the two bridged styles; the only key-press stop is `fields_to_map`'s hold at 12.9 s.
-- The hold is not on the slide yet. lecturekit 0.4.0 measures 0 frames of unchanged picture before it (the stop's
-  frame is a fresh keyframe whose re-coding differs from the still frames before it by 7 to 8 grey levels, against a
-  tolerance of 6; `README.md`, log), and the build refuses a stop with fewer than 3. The slide plays the clip through,
-  the presenter pauses it with Space at 12.9 s for the prompt, and the study PDF prints the stop's frame and the end
-  (`study="eccentricity end"`). When the engine accepts the stop, the slide becomes
-  `::: {.movie clip="fields_to_map" stops="eccentricity" study=strip}` with the prompt in `:::: {.stop ref="eccentricity"}`,
-  and `time=` stays 4 (18 s of clip and one prompt).
-- Until then the continuous build is red: `tools/check_clips.py` exits 1 on this stop in both presets, and the
-  build job (which needs the clips job) is skipped for every project. Do not push or merge this project until one
-  of two things happens. (a) lecturekit gets a rest measure that tolerates a keyframe's re-coding (or a higher
-  encoder quality for clips with stops), is released, and the pin in `requirements.txt` moves with
-  `python tools/vendor_extension.py`; the slide then becomes the movie with `stops=` above. (b) The lecturer drops
-  `stop: true` through a manim8 proposal. Dropping the stop alone does not make the build green: slide 5's
-  `study="eccentricity end"` names `eccentricity` as a stop candidate of `clips.json`, and without the stop
-  `lk build --strict` refuses it ("study= names "eccentricity", which is no hold of the clip with a still"). So the
-  slide must change with it, to `::: {.movie clip="fields_to_map" still="eccentricity" height=4.5cm}`: the
-  checkpoint `eccentricity` stays a still id; a trial of that slide with the stop emptied from `clips.json` built
-  with `--strict` and no overfull frame.
+- The hold is on slide 5: `::: {.movie clip="fields_to_map" stops="eccentricity" study=strip}`, with the prompt in
+  `:::: {.stop ref="eccentricity"}`; `time=` stays 4 (18 s of clip and one prompt). lecturekit 0.4.0 refused it: the
+  stop's frame is a fresh keyframe whose re-coding differed from the still frames before it by 7 to 8 grey levels at
+  160 px, against a tolerance of 6, so it measured 0 frames of rest. lecturekit 0.4.1 sets that tolerance at 16, from
+  the keyframes of the expo's and the feature deck's manim8 clips (README.md, log), and measures 47 frames of rest
+  before the stop in paper and 46 in dark. `lk review frags` holds frame 387 in both presets, pausing two frames
+  early, inside the rest.
 - No goals or takeaways slide: the deck is a talk in four clips, as asked. Nothing was moved to study-only pages.
 - Open for the lecturer:
   - the four titles, drafts of the briefs' claims (slides 4 and 5 redrafted after review: they were "Grid search,
