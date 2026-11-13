@@ -136,3 +136,6 @@ lk build population-receptive-fields --strict && lk build population-receptive-f
   entries, 0 problems), and `lk review frags` holds frame 387 in both presets. The continuous build is no longer
   blocked by this project. In the same release `lk review shoot` shoots every clip paused on its last frame, so the
   contact sheets show the clips complete; the posters (`f0000.png`) are still the empty first frame.
+- 2026-11-13: correction. `SESSION.md` and `PLAN.md` said the session's decisions came with its task, not from the
+  lecturer. Three were the lecturer's answers to the session's questions in its chat (a new project with a deck, one
+  clip per slide; only the 12.9 s hold; 1280 by 720). The choice of the bridged styles was the session's.

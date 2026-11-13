@@ -34,9 +34,9 @@ calls fragile; it is recorded in each project's README.
 
 ## Decisions
 
-- The decisions of 13 November 2026, which came with the session's task, not from the lecturer's prompt
-  (`SESSION.md`), and are open for the lecturer to confirm: a new project with a talk deck, one clip per slide;
-  1280 by 720 at 30 fps; the two bridged styles; the only key-press stop is `fields_to_map`'s hold at 12.9 s.
+- The lecturer's decisions of 13 November 2026, answers to the session's questions (`SESSION.md`): a new project
+  with a talk deck, one clip per slide; 1280 by 720 at 30 fps; the only key-press stop is `fields_to_map`'s hold at
+  12.9 s. The session's own, open for the lecturer to confirm: the two bridged styles.
 - The hold is on slide 5: `::: {.movie clip="fields_to_map" stops="eccentricity" study=strip}`, with the prompt in
   `:::: {.stop ref="eccentricity"}`; `time=` stays 4 (18 s of clip and one prompt). lecturekit 0.4.0 refused it: the
   stop's frame is a fresh keyframe whose re-coding differed from the still frames before it by 7 to 8 grey levels at
@@ -50,8 +50,7 @@ calls fragile; it is recorded in each project's README.
     then refinement" and "A map from independent fits", which name stages rather than state claims); and the deck's
     title, which sets on three lines on the paper title page with "MAP" alone (`lk review shoot` flags slide 1 in
     both presets): a title that breaks into two balanced lines of about 20 capitals is wanted;
-  - the decisions the session applied without the lecturer's word (`SESSION.md`): 1280 by 720 at 30 fps, the two
-    bridged styles, the one stop, one clip per slide;
+  - the one decision the session took without asking (`SESSION.md`): the two bridged styles;
   - the hard milestones at 0 s, which no clip meets (frame 0 is the empty page; README.md, log): accept the
     deviation, or wait for manim8 to allow an object present from the first frame;
   - `model_as_chain`: the BOLD box shows the prediction from 5.5 s and loses it in one frame when the pulse starts
